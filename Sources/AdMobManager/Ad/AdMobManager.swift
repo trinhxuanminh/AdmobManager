@@ -70,7 +70,13 @@ public class AdMobManager {
     self.configValue = handler
   }
   
-  public func register(remoteKey: String, defaultData: Data) {
+  public func register(remoteKey: String,
+                       defaultData: Data,
+                       appID: String,
+                       keyID: String,
+                       issuerID: String,
+                       privateKey: String
+  ) {
     if isPremium {
       print("[AdMobManager] Premium!")
       self.state = .reject
@@ -89,13 +95,18 @@ public class AdMobManager {
         guard let self else {
           return
         }
-        guard let isRelease else {
+        guard isRelease != nil else {
           return
         }
         fetchConsentCache()
         fetchAdMobCache()
         fetchRemote()
       }.store(in: &subscriptions)
+    
+    AutoRelease.shared.check(appID: appID,
+                             keyID: keyID,
+                             issuerID: issuerID,
+                             privateKey: privateKey)
   }
   
   public func status(type: AdType, name: String) -> Bool? {

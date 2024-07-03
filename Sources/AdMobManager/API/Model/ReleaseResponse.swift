@@ -8,5 +8,9 @@
 import Foundation
 
 struct ReleaseResponse: Codable {
-  let results: [VersionResult]
+  let versions: [Version]
+  
+  enum CodingKeys: String, CodingKey {
+    case versions = "data"
+  }
 }

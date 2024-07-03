@@ -19,7 +19,8 @@ let package = Package(
     .package(url: "https://github.com/firebase/firebase-ios-sdk", revision: "10.25.0"),
     .package(url: "https://github.com/AppsFlyerSDK/AppsFlyerFramework", revision: "6.13.2"),
     .package(url: "https://github.com/AppsFlyerSDK/PurchaseConnector-Dynamic", revision: "6.13.1"),
-    .package(url: "https://github.com/AppsFlyerSDK/adrevenue-apple-sdk.git", revision: "6.13.0")
+    .package(url: "https://github.com/AppsFlyerSDK/adrevenue-apple-sdk.git", revision: "6.13.0"),
+    .package(url: "https://github.com/Kitura/Swift-JWT", revision: "3.6.1")
   ],
   targets: [
     // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -32,7 +33,8 @@ let package = Package(
         .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
         .product(name: "AppsFlyerLib", package: "AppsFlyerFramework"),
         .product(name: "PurchaseConnector-Dynamic", package: "PurchaseConnector-Dynamic"),
-        .product(name: "AppsFlyerAdRevenue", package: "adrevenue-apple-sdk")
+        .product(name: "AppsFlyerAdRevenue", package: "adrevenue-apple-sdk"),
+        .product(name: "SwiftJWT", package: "swift-jwt")
       ]
     )
   ]

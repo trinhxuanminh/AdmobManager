@@ -7,6 +7,6 @@
 
 import Foundation
 
-struct VersionResult: Codable {
-  let version: String
+struct Version: Codable {
+  let attributes: Attributes
 }
