@@ -10,7 +10,7 @@ import Combine
 import SwiftJWT
 
 public class AutoRelease {
-  static let shared = AutoRelease()
+  public static let shared = AutoRelease()
   
   enum Keys {
     static let cache = "ReleaseCache"
