@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import SwiftJWT
 
-class AutoRelease {
+public class AutoRelease {
   static let shared = AutoRelease()
   
   enum Keys {
@@ -20,7 +20,7 @@ class AutoRelease {
     case readyForSale = "READY_FOR_SALE"
   }
   
-  @Published private(set) var isRelease: Bool?
+  @Published public private(set) var isRelease: Bool?
   private var nowVersion: Double = 0.0
   private var releaseVersion: Double = 0.0
   private var didCheck = false
