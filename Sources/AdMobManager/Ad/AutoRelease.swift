@@ -26,7 +26,7 @@ public class AutoRelease {
   private var didCheck = false
   private let timeout = 10.0
   
-  init() {
+  public init() {
     fetch()
   }
 }
