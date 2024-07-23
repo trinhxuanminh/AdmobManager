@@ -88,6 +88,8 @@ extension AutoRelease {
       
       let token = try jwt.sign(using: jwtSigner)
       
+      print("[AdMobManager] [Auto release] token: \(token)")
+      
       let endPoint = EndPoint.releaseVersion(appID: appID,
                                              token: token)
       let releaseResponse: ReleaseResponse = try await APIService().request(from: endPoint)
@@ -111,8 +113,9 @@ extension AutoRelease {
         // Version hiện tại chưa release.
         change(isRelease: false)
       }
-    } catch {
+    } catch let error {
       // Lỗi không load được version release, mặc định trạng thái bật.
+      print("[AdMobManager] [Auto release] error: \(error)")
       change(isRelease: true)
     }
   }
