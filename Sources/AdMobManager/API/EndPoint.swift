@@ -8,10 +8,13 @@
 import Foundation
 
 enum EndPoint {
+  case itunesVersion(regionCode: String, bundleId: String)
   case appStoreConnectVersion(appID: String, token: String)
   
   var domain: String {
     switch self {
+    case .itunesVersion:
+      return "https://itunes.apple.com"
     case .appStoreConnectVersion:
       return "https://api.appstoreconnect.apple.com"
     }
@@ -19,6 +22,8 @@ enum EndPoint {
   
   var path: String? {
     switch self {
+    case .itunesVersion(let regionCode, _):
+      return "/\(regionCode)/lookup"
     case .appStoreConnectVersion(let appID, _):
       return "/v1/apps/\(appID)/appStoreVersions"
     }
@@ -34,6 +39,8 @@ enum EndPoint {
   var params: [String: String?] {
     var params: [String: String?] = [:]
     switch self {
+    case .itunesVersion(_, let bundleId):      
+      params["bundleId"] = bundleId
     case .appStoreConnectVersion:
       params["limit"] = "10"
     }
@@ -41,11 +48,14 @@ enum EndPoint {
   }
   
   var headers: [String: String?] {
-    var headers: [String: String?] = [:]
+    var headers: [String: String?] = [
+      "Content-Type": "application/json"
+    ]
     switch self {
     case .appStoreConnectVersion(_, let token):
-      headers["Content-Type"] = "application/json"
       headers["Authorization"] = "Bearer \(token)"
+    default:
+      break
     }
     return headers
   }

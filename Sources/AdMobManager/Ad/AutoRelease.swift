@@ -24,7 +24,11 @@ public class AutoRelease {
   private var nowVersion: Double = 0.0
   private var releaseVersion: Double = 0.0
   private var didCheck = false
-  private let timeout = 10.0
+  private let timeout = 15.0
+  private var appID: String!
+  private var keyID: String!
+  private var issuerID: String!
+  private var privateKey: String!
   
   public init() {
     fetch()
@@ -37,7 +41,12 @@ extension AutoRelease {
              issuerID: String,
              privateKey: String
   ) {
-    guard 
+    self.appID = appID
+    self.keyID = keyID
+    self.issuerID = issuerID
+    self.privateKey = privateKey
+    
+    guard
       let nowVersionString = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
       let nowVersion = Double(nowVersionString)
     else {
@@ -59,27 +68,71 @@ extension AutoRelease {
         change(isRelease: true)
       }
       Task {
-        // Tìm version đang release trên AppStore.
-        await load(appID, keyID, issuerID, privateKey)
+        // Check version đang release trên Itunes.
+        let isItunesRelease = await isItunesRelease()
+        if isItunesRelease {
+          change(isRelease: isItunesRelease)
+        } else {
+          // Check version đang release trên AppStoreConnect khi dữ liệu itunes chưa kịp cập nhật.
+          let isAppStoreConnectRelease = await isAppStoreConnectRelease()
+          change(isRelease: isAppStoreConnectRelease)
+        }
       }
     }
   }
 }
 
 extension AutoRelease {
-  private func load(_ appID: String,
-                    _ keyID: String,
-                    _ issuerID: String,
-                    _ privateKey: String
-  ) async {
+  private func isItunesRelease() async -> Bool {
+    do {
+      guard let bundleId = Bundle.main.bundleIdentifier else {
+        // Không lấy được bundleId.
+        return true
+      }
+      
+      let regionCodeClean: String
+      if let regionCode = Locale.current.regionCode,
+         let cleanPath = regionCode.lowercased().addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+        regionCodeClean = cleanPath
+      } else {
+        regionCodeClean = "us"
+      }
+      
+      let endPoint = EndPoint.itunesVersion(regionCode: regionCodeClean, bundleId: bundleId)
+      let itunesResponse: ItunesResponse = try await APIService().request(from: endPoint)
+      guard let result = itunesResponse.results.first else {
+        // Hiện tại chưa có version nào release.
+        return false
+      }
+      let releaseVersionString = result.version
+      guard let releaseVersion = Double(releaseVersionString) else {
+        // Không convert được sang dạng số thập phân.
+        return true
+      }
+
+      if nowVersion <= releaseVersion {
+        // Version hiện tại đã release. Cache version.
+        update(releaseVersion)
+        return true
+      } else {
+        // Version hiện tại chưa release.
+        return false
+      }
+    } catch let error {
+      // Lỗi không load được version release, mặc định trạng thái bật.
+      print("[AdMobManager] [Auto release] error: \(error)")
+      return true
+    }
+  }
+  
+  private func isAppStoreConnectRelease() async -> Bool {
     do {
       guard let privateData = privateKey.data(using: .utf8) else {
-        change(isRelease: true)
-        return
+        return true
       }
       let jwtSigner = JWTSigner.es256(privateKey: privateData)
       
-      let limitTime = 120.0
+      let limitTime = 300.0
       let claims = TokenClaims(iss: issuerID,
                                exp: Date(timeIntervalSinceNow: limitTime),
                                aud: "appstoreconnect-v1")
@@ -88,35 +141,30 @@ extension AutoRelease {
       
       let token = try jwt.sign(using: jwtSigner)
       
-      print("[AdMobManager] [Auto release] token: \(token)")
-      
-      let endPoint = EndPoint.appStoreConnectVersion(appID: appID,
-                                                     token: token)
+      let endPoint = EndPoint.appStoreConnectVersion(appID: appID, token: token)
       let appStoreConnectResponse: AppStoreConnectResponse = try await APIService().request(from: endPoint)
       guard let version = appStoreConnectResponse.versions.first(where: { $0.attributes.state == State.readyForSale.rawValue }) else {
         // Hiện tại chưa có version nào release.
-        change(isRelease: false)
-        return
+        return false
       }
       let releaseVersionString = version.attributes.version
       guard let releaseVersion = Double(releaseVersionString) else {
         // Không convert được sang dạng số thập phân.
-        change(isRelease: true)
-        return
+        return true
       }
 
       if nowVersion <= releaseVersion {
         // Version hiện tại đã release. Cache version.
         update(releaseVersion)
-        change(isRelease: true)
+        return true
       } else {
         // Version hiện tại chưa release.
-        change(isRelease: false)
+        return false
       }
     } catch let error {
       // Lỗi không load được version release, mặc định trạng thái bật.
       print("[AdMobManager] [Auto release] error: \(error)")
-      change(isRelease: true)
+      return true
     }
   }
   
