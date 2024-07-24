@@ -168,7 +168,6 @@ extension SplashAd {
   private func invalidate() {
     self.timer?.invalidate()
     self.timer = nil
-    self.adUnitID = nil
   }
   
   @objc private func isReady() {
