@@ -51,13 +51,13 @@ class NativeAd: NSObject {
 extension NativeAd: GADNativeAdLoaderDelegate {
   func adLoader(_ adLoader: GADAdLoader,
                 didFailToReceiveAdWithError error: Error) {
-    print("[AdMobManager] [NativeAd] Load fail - \(String(describing: error))!")
+    print("[AdMobManager] [NativeAd] Load fail (\(String(describing: adUnitID))) - \(String(describing: error))!")
     self.state = .error
     didError?()
   }
   
   func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
-    print("[AdMobManager] [NativeAd] Did load!")
+    print("[AdMobManager] [NativeAd] Did load! (\(String(describing: adUnitID)))")
     self.state = .receive
     self.nativeAd = nativeAd
     didReceive?()
@@ -93,7 +93,7 @@ extension NativeAd {
       return
     }
     
-    print("[AdMobManager] [NativeAd] Start load!")
+    print("[AdMobManager] [NativeAd] Start load! (\(String(describing: adUnitID)))")
     self.state = .loading
     DispatchQueue.main.async { [weak self] in
       guard let self = self else {

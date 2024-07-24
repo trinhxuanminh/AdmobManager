@@ -126,7 +126,7 @@ public class AdMobManager {
       return nil
     }
     guard let adConfig = getAd(type: type, name: name) as? AdConfigProtocol else {
-      print("[AdMobManager] Ads (\(name)) don't exist!")
+      print("[AdMobManager] Ads don't exist! (\(name))")
       return nil
     }
     if AutoRelease.shared.isRelease == false, adConfig.isAuto == true {
@@ -142,7 +142,7 @@ public class AdMobManager {
   ) {
     switch status(type: .reuse(type), name: name) {
     case false:
-      print("[AdMobManager] Ads (\(name)) are not allowed to show!")
+      print("[AdMobManager] Ads are not allowed to show! (\(name))")
       fail?()
       return
     case true:
@@ -152,7 +152,7 @@ public class AdMobManager {
       return
     }
     guard let adConfig = getAd(type: .reuse(type), name: name) as? AdConfigProtocol else {
-      print("[AdMobManager] Ads (\(name)) don't exist!")
+      print("[AdMobManager] Ads don't exist! (\(name))")
       fail?()
       return
     }
@@ -165,7 +165,7 @@ public class AdMobManager {
     switch type {
     case .splash:
       guard let splash = adConfig as? Splash else {
-        print("[AdMobManager] Format (\(name)) conversion error!")
+        print("[AdMobManager] Format conversion error! (\(name))")
         fail?()
         return
       }
@@ -192,7 +192,7 @@ public class AdMobManager {
   ) {
     switch status(type: .onceUsed(.native), name: name) {
     case false:
-      print("[AdMobManager] Ads (\(name)) are not allowed to show!")
+      print("[AdMobManager] Ads are not allowed to show! (\(name))")
       fail?()
       return
     case true:
@@ -202,12 +202,12 @@ public class AdMobManager {
       return
     }
     guard let native = getAd(type: .onceUsed(.native), name: name) as? Native else {
-      print("[AdMobManager] Ads (\(name)) don't exist!")
+      print("[AdMobManager] Ads don't exist! (\(name))")
       fail?()
       return
     }
     guard native.isPreload == true else {
-      print("[AdMobManager] Ads (\(name)) are not preloaded!")
+      print("[AdMobManager] Ads are not preloaded! (\(name))")
       fail?()
       return
     }
@@ -230,7 +230,7 @@ public class AdMobManager {
   ) {
     switch status(type: .reuse(type), name: name) {
     case false:
-      print("[AdMobManager] Ads (\(name)) are not allowed to show!")
+      print("[AdMobManager] Ads are not allowed to show! (\(name))")
       didFail?()
       return
     case true:
@@ -240,22 +240,22 @@ public class AdMobManager {
       return
     }
     guard let adConfig = getAd(type: .reuse(type), name: name) as? AdConfigProtocol else {
-      print("[AdMobManager] Ads (\(name)) don't exist!")
+      print("[AdMobManager] Ads don't exist! (\(name))")
       didFail?()
       return
     }
     guard let ad = listReuseAd[type.rawValue + adConfig.id] else {
-      print("[AdMobManager] Ads (\(name)) do not exist!")
+      print("[AdMobManager] Ads do not exist! (\(name))")
       didFail?()
       return
     }
     guard !checkIsPresent() else {
-      print("[AdMobManager] Ads (\(name)) display failure - other ads is showing!")
+      print("[AdMobManager] Ads display failure - other ads is showing! (\(name))")
       didFail?()
       return
     }
     guard checkFrequency(adConfig: adConfig, ad: ad) else {
-      print("[AdMobManager] Ads (\(name)) hasn't been displayed yet!")
+      print("[AdMobManager] Ads hasn't been displayed yet! (\(name))")
       didFail?()
       return
     }

@@ -52,16 +52,16 @@ class SplashAd: NSObject, AdProtocol {
             didHide: Handler?
   ) {
     guard isExist() else {
-      print("[AdMobManager] [SplashAd] Display failure - not ready to show!")
+      print("[AdMobManager] [SplashAd] Display failure - not ready to show! (\(String(describing: adUnitID)))")
       didFail?()
       return
     }
     guard !presentState else {
-      print("[AdMobManager] [SplashAd] Display failure - ads are being displayed!")
+      print("[AdMobManager] [SplashAd] Display failure - ads are being displayed! (\(String(describing: adUnitID)))")
       didFail?()
       return
     }
-    print("[AdMobManager] [SplashAd] Requested to show!")
+    print("[AdMobManager] [SplashAd] Requested to show! (\(String(describing: adUnitID)))")
     self.didFail = didFail
     self.didHide = didHide
     self.didEarnReward = didEarnReward
@@ -73,18 +73,18 @@ extension SplashAd: GADFullScreenContentDelegate {
   func ad(_ ad: GADFullScreenPresentingAd,
           didFailToPresentFullScreenContentWithError error: Error
   ) {
-    print("[AdMobManager] [SplashAd] Did fail to show content!")
+    print("[AdMobManager] [SplashAd] Did fail to show content! (\(String(describing: adUnitID)))")
     didFail?()
     self.splashAd = nil
   }
   
   func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
-    print("[AdMobManager] [SplashAd] Will display!")
+    print("[AdMobManager] [SplashAd] Will display! (\(String(describing: adUnitID)))")
     self.presentState = true
   }
   
   func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
-    print("[AdMobManager] [SplashAd] Did hide!")
+    print("[AdMobManager] [SplashAd] Did hide! (\(String(describing: adUnitID)))")
     didHide?()
     self.presentState = false
     self.splashAd = nil
@@ -110,7 +110,7 @@ extension SplashAd {
       
       self.isLoading = true
       self.fire()
-      print("[AdMobManager] [SplashAd] Start load!")
+      print("[AdMobManager] [SplashAd] Start load! (\(String(describing: adUnitID)))")
       
       let request = GADRequest()
       GADInterstitialAd.load(
@@ -125,11 +125,11 @@ extension SplashAd {
         }
         self.invalidate()
         guard error == nil, let ad = ad else {
-          print("[AdMobManager] [SplashAd] Load fail - \(String(describing: error))!")
+          print("[AdMobManager] [SplashAd] Load fail (\(String(describing: adUnitID))) - \(String(describing: error))!")
           self.didLoadFail?()
           return
         }
-        print("[AdMobManager] [SplashAd] Did load!")
+        print("[AdMobManager] [SplashAd] Did load! (\(String(describing: adUnitID)))")
         self.splashAd = ad
         self.splashAd?.fullScreenContentDelegate = self
         self.didLoadSuccess?()

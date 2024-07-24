@@ -69,7 +69,7 @@ open class NativeAdMobView: UIView, AdMobViewProtocol, GADVideoControllerDelegat
     
     switch AdMobManager.shared.status(type: .onceUsed(.native), name: name) {
     case false:
-      print("[AdMobManager] [NativeAd] Ads are not allowed to show!")
+      print("[AdMobManager] [NativeAd] Ads are not allowed to show! (\(name))")
       errored()
       return
     case true:
