@@ -8,18 +8,18 @@
 import Foundation
 
 enum EndPoint {
-  case releaseVersion(appID: String, token: String)
+  case appStoreConnectVersion(appID: String, token: String)
   
   var domain: String {
     switch self {
-    case .releaseVersion:
+    case .appStoreConnectVersion:
       return "https://api.appstoreconnect.apple.com"
     }
   }
   
   var path: String? {
     switch self {
-    case .releaseVersion(let appID, _):
+    case .appStoreConnectVersion(let appID, _):
       return "/v1/apps/\(appID)/appStoreVersions"
     }
   }
@@ -34,7 +34,7 @@ enum EndPoint {
   var params: [String: String?] {
     var params: [String: String?] = [:]
     switch self {
-    case .releaseVersion:
+    case .appStoreConnectVersion:
       params["limit"] = "10"
     }
     return params
@@ -43,7 +43,7 @@ enum EndPoint {
   var headers: [String: String?] {
     var headers: [String: String?] = [:]
     switch self {
-    case .releaseVersion(_, let token):
+    case .appStoreConnectVersion(_, let token):
       headers["Content-Type"] = "application/json"
       headers["Authorization"] = "Bearer \(token)"
     }

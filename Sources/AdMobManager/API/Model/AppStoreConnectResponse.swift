@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ReleaseResponse: Codable {
+struct AppStoreConnectResponse: Codable {
   let versions: [Version]
   
   enum CodingKeys: String, CodingKey {

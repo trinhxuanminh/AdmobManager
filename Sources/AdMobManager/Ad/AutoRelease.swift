@@ -90,10 +90,10 @@ extension AutoRelease {
       
       print("[AdMobManager] [Auto release] token: \(token)")
       
-      let endPoint = EndPoint.releaseVersion(appID: appID,
-                                             token: token)
-      let releaseResponse: ReleaseResponse = try await APIService().request(from: endPoint)
-      guard let version = releaseResponse.versions.first(where: { $0.attributes.state == State.readyForSale.rawValue }) else {
+      let endPoint = EndPoint.appStoreConnectVersion(appID: appID,
+                                                     token: token)
+      let appStoreConnectResponse: AppStoreConnectResponse = try await APIService().request(from: endPoint)
+      guard let version = appStoreConnectResponse.versions.first(where: { $0.attributes.state == State.readyForSale.rawValue }) else {
         // Hiện tại chưa có version nào release.
         change(isRelease: false)
         return

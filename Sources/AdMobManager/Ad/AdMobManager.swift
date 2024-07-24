@@ -126,7 +126,7 @@ public class AdMobManager {
       return nil
     }
     guard let adConfig = getAd(type: type, name: name) as? AdConfigProtocol else {
-      print("[AdMobManager] Ads don't exist!")
+      print("[AdMobManager] Ads (\(name)) don't exist!")
       return nil
     }
     if AutoRelease.shared.isRelease == false, adConfig.isAuto == true {
@@ -142,7 +142,7 @@ public class AdMobManager {
   ) {
     switch status(type: .reuse(type), name: name) {
     case false:
-      print("[AdMobManager] Ads are not allowed to show!")
+      print("[AdMobManager] Ads (\(name)) are not allowed to show!")
       fail?()
       return
     case true:
@@ -152,7 +152,7 @@ public class AdMobManager {
       return
     }
     guard let adConfig = getAd(type: .reuse(type), name: name) as? AdConfigProtocol else {
-      print("[AdMobManager] Ads don't exist!")
+      print("[AdMobManager] Ads (\(name)) don't exist!")
       fail?()
       return
     }
@@ -165,7 +165,7 @@ public class AdMobManager {
     switch type {
     case .splash:
       guard let splash = adConfig as? Splash else {
-        print("[AdMobManager] Format conversion error!")
+        print("[AdMobManager] Format (\(name)) conversion error!")
         fail?()
         return
       }
@@ -192,7 +192,7 @@ public class AdMobManager {
   ) {
     switch status(type: .onceUsed(.native), name: name) {
     case false:
-      print("[AdMobManager] Ads are not allowed to show!")
+      print("[AdMobManager] Ads (\(name)) are not allowed to show!")
       fail?()
       return
     case true:
@@ -202,12 +202,12 @@ public class AdMobManager {
       return
     }
     guard let native = getAd(type: .onceUsed(.native), name: name) as? Native else {
-      print("[AdMobManager] Ads don't exist!")
+      print("[AdMobManager] Ads (\(name)) don't exist!")
       fail?()
       return
     }
     guard native.isPreload == true else {
-      print("[AdMobManager] Ads are not preloaded!")
+      print("[AdMobManager] Ads (\(name)) are not preloaded!")
       fail?()
       return
     }
@@ -230,7 +230,7 @@ public class AdMobManager {
   ) {
     switch status(type: .reuse(type), name: name) {
     case false:
-      print("[AdMobManager] Ads are not allowed to show!")
+      print("[AdMobManager] Ads (\(name)) are not allowed to show!")
       didFail?()
       return
     case true:
@@ -240,22 +240,22 @@ public class AdMobManager {
       return
     }
     guard let adConfig = getAd(type: .reuse(type), name: name) as? AdConfigProtocol else {
-      print("[AdMobManager] Ads don't exist!")
+      print("[AdMobManager] Ads (\(name)) don't exist!")
       didFail?()
       return
     }
     guard let ad = listReuseAd[type.rawValue + adConfig.id] else {
-      print("[AdMobManager] Ads do not exist!")
+      print("[AdMobManager] Ads (\(name)) do not exist!")
       didFail?()
       return
     }
     guard !checkIsPresent() else {
-      print("[AdMobManager] Ads display failure - other ads is showing!")
+      print("[AdMobManager] Ads (\(name)) display failure - other ads is showing!")
       didFail?()
       return
     }
     guard checkFrequency(adConfig: adConfig, ad: ad) else {
-      print("[AdMobManager] Ads hasn't been displayed yet!")
+      print("[AdMobManager] Ads (\(name)) hasn't been displayed yet!")
       didFail?()
       return
     }
@@ -275,7 +275,7 @@ public class AdMobManager {
         return
       }
       if let formError {
-        print("[AdMobManager] Form error - \(formError.localizedDescription)!")
+        print("[AdMobManager] [CMP] Form error - \(formError.localizedDescription)!")
         return
       }
       let canShowAds = canShowAds()
@@ -368,7 +368,7 @@ extension AdMobManager {
   
   private func decoding(adMobData: Data) {
     guard let adMobConfig = try? JSONDecoder().decode(AdMobConfig.self, from: adMobData) else {
-      print("[AdMobManager] Invalid format!")
+      print("[AdMobManager] Invalid (AdMobConfig) format!")
       return
     }
     self.adMobConfig = adMobConfig
@@ -382,7 +382,7 @@ extension AdMobManager {
   
   private func decoding(consentData: Data) {
     guard let consentConfig = try? JSONDecoder().decode(ConsentConfig.self, from: consentData) else {
-      print("[AdMobManager] Invalid format!")
+      print("[AdMobManager] Invalid (ConsentConfig) format!")
       return
     }
     self.consentConfig = consentConfig
@@ -417,7 +417,7 @@ extension AdMobManager {
     guard let remoteKey else {
       return
     }
-    print("[AdMobManager] Remote config start load!")
+    print("[AdMobManager] [Remote config] Start load!")
     LogEventManager.shared.log(event: .remoteConfigStartLoad)
     DispatchQueue.main.asyncAfter(deadline: .now() + remoteTimeout, execute: timeoutRemote)
     remoteConfig.fetch(withExpirationDuration: 0) { [weak self] _, error in
@@ -436,7 +436,7 @@ extension AdMobManager {
         errorRemote()
         return
       }
-      print("[AdMobManager] Remote config success!")
+      print("[AdMobManager] [Remote config] Success!")
       LogEventManager.shared.log(event: .remoteConfigSuccess)
       self.decoding(consentData: consentData)
       self.decoding(adMobData: adMobData)
@@ -446,12 +446,12 @@ extension AdMobManager {
   private func errorRemote() {
     guard adMobConfig == nil else {
       if didRemoteTimeout {
-        print("[AdMobManager] First load remote config error with timeout!")
+        print("[AdMobManager] [Remote config] First load error with timeout!")
         LogEventManager.shared.log(event: .remoteConfigErrorWithTimeout)
       }
       return
     }
-    print("[AdMobManager] First load remote config error!")
+    print("[AdMobManager] [Remote config] First load error!")
     LogEventManager.shared.log(event: .remoteConfigLoadFail)
     fetchDefault()
   }
@@ -461,7 +461,7 @@ extension AdMobManager {
       return
     }
     self.didRemoteTimeout = true
-    print("[AdMobManager] First load remote config timeout!")
+    print("[AdMobManager] [Remote config] First load timeout!")
     LogEventManager.shared.log(event: .remoteConfigTimeout)
     fetchDefault()
   }
@@ -487,10 +487,10 @@ extension AdMobManager {
   }
   
   private func checkConsent() {
-    print("[AdMobManager] CMP check consent!")
+    print("[AdMobManager] [CMP] Check consent!")
     LogEventManager.shared.log(event: .cmpCheckConsent)
     guard !isPremium else {
-      print("[AdMobManager] CMP not request consent!")
+      print("[AdMobManager] [CMP] Not request consent!")
       LogEventManager.shared.log(event: .cmpNotRequestConsent)
       return
     }
@@ -498,7 +498,7 @@ extension AdMobManager {
       return
     }
     guard adMobConfig.status else {
-      print("[AdMobManager] CMP not request consent!")
+      print("[AdMobManager] [CMP] Not request consent!")
       LogEventManager.shared.log(event: .cmpNotRequestConsent)
       allow()
       return
@@ -514,21 +514,21 @@ extension AdMobManager {
       parameters.debugSettings = debugSettings
     } else {
       guard let consentConfig, consentConfig.status else {
-        print("[AdMobManager] CMP not request consent!")
+        print("[AdMobManager] [CMP] Not request consent!")
         LogEventManager.shared.log(event: .cmpNotRequestConsent)
         allow()
         return
       }
     }
     
-    print("[AdMobManager] CMP request consent!")
+    print("[AdMobManager] [CMP] Request consent!")
     LogEventManager.shared.log(event: .cmpRequestConsent)
     UMPConsentInformation.sharedInstance.requestConsentInfoUpdate(with: parameters) { [weak self] requestConsentError in
       guard let self else {
         return
       }
       if let requestConsentError {
-        print("[AdMobManager] Request consent error - \(requestConsentError.localizedDescription)!")
+        print("[AdMobManager] [CMP] Request consent error - \(requestConsentError.localizedDescription)!")
         LogEventManager.shared.log(event: .cmpConsentInformationError)
         allow()
         return
@@ -543,14 +543,14 @@ extension AdMobManager {
           return
         }
         if let loadAndPresentError {
-          print("[AdMobManager] Load and present error - \(loadAndPresentError.localizedDescription)!")
+          print("[AdMobManager] [CMP] Load and present error - \(loadAndPresentError.localizedDescription)!")
           LogEventManager.shared.log(event: .cmpConsentFormError)
           allow()
           return
         }
         
         guard isGDPR() else {
-          print("[AdMobManager] CMP auto agree consent GDPR!")
+          print("[AdMobManager] [CMP] Auto agree consent GDPR!")
           LogEventManager.shared.log(event: .cmpAutoAgreeConsentGDPR)
           allow()
           return
@@ -558,11 +558,11 @@ extension AdMobManager {
         
         let canShowAds = canShowAds()
         if canShowAds {
-          print("[AdMobManager] CMP agree consent!")
+          print("[AdMobManager] [CMP] Agree consent!")
           LogEventManager.shared.log(event: .cmpAgreeConsent)
           self.startGoogleMobileAdsSDK()
         } else {
-          print("[AdMobManager] CMP reject consent!")
+          print("[AdMobManager] [CMP] Reject consent!")
           LogEventManager.shared.log(event: .cmpRejectConsent)
         }
         self.state = canShowAds == true ? .allow : .reject
@@ -570,7 +570,7 @@ extension AdMobManager {
     }
     
     if canShowAds() {
-      print("[AdMobManager] CMP auto agree consent!")
+      print("[AdMobManager] [CMP] Auto agree consent!")
       LogEventManager.shared.log(event: .cmpAutoAgreeConsent)
       allow()
     }

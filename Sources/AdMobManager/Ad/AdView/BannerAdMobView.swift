@@ -83,7 +83,7 @@ open class BannerAdMobView: UIView {
     }
     switch AdMobManager.shared.status(type: .onceUsed(.banner), name: name) {
     case false:
-      print("[AdMobManager] Ads are not allowed to show!")
+      print("[AdMobManager] [BannerAd] Ads are not allowed to show!")
       errored()
       return
     case true:
@@ -110,13 +110,13 @@ extension BannerAdMobView: GADBannerViewDelegate {
   public func bannerView(_ bannerView: GADBannerView,
                          didFailToReceiveAdWithError error: Error
   ) {
-    print("[AdMobManager] BannerAd load fail - \(String(describing: error))!")
+    print("[AdMobManager] [BannerAd] Load fail - \(String(describing: error))!")
     self.state = .error
     errored()
   }
   
   public func bannerViewDidReceiveAd(_ bannerView: GADBannerView) {
-    print("[AdMobManager] BannerAd did load!")
+    print("[AdMobManager] [BannerAd] Did load!")
     self.state = .receive
     self.bringSubviewToFront(self.bannerAdView)
     didReceive?()
@@ -152,11 +152,11 @@ extension BannerAdMobView {
     }
     
     guard let adUnitID = adUnitID else {
-      print("[AdMobManager] BannerAd failed to load - not initialized yet! Please install ID.")
+      print("[AdMobManager] [BannerAd] Failed to load - not initialized yet! Please install ID.")
       return
     }
     
-    print("[AdMobManager] BannerAd start load!")
+    print("[AdMobManager] [BannerAd] Start load!")
     self.state = .loading
     DispatchQueue.main.async { [weak self] in
       guard let self = self else {
