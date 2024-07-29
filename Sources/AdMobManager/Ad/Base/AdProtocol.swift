@@ -14,6 +14,7 @@ import UIKit
   @objc optional func isExist() -> Bool
   func show(rootViewController: UIViewController,
             didFail: Handler?,
+            willPresent: Handler?,
             didEarnReward: Handler?,
             didHide: Handler?)
 }

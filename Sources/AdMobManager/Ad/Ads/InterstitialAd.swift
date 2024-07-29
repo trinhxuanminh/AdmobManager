@@ -18,6 +18,7 @@ class InterstitialAd: NSObject, AdProtocol {
   private var didLoadFail: Handler?
   private var didLoadSuccess: Handler?
   private var didShowFail: Handler?
+  private var willPresent: Handler?
   private var didEarnReward: Handler?
   private var didHide: Handler?
   
@@ -41,6 +42,7 @@ class InterstitialAd: NSObject, AdProtocol {
   
   func show(rootViewController: UIViewController,
             didFail: Handler?,
+            willPresent: Handler?,
             didEarnReward: Handler?,
             didHide: Handler?
   ) {
@@ -56,6 +58,7 @@ class InterstitialAd: NSObject, AdProtocol {
     }
     print("[AdMobManager] [InterstitialAd] Requested to show! (\(String(describing: adUnitID)))")
     self.didShowFail = didFail
+    self.willPresent = willPresent
     self.didHide = didHide
     self.didEarnReward = didEarnReward
     interstitialAd?.present(fromRootViewController: rootViewController)
@@ -74,6 +77,7 @@ extension InterstitialAd: GADFullScreenContentDelegate {
   
   func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
     print("[AdMobManager] [InterstitialAd] Will display! (\(String(describing: adUnitID)))")
+    willPresent?()
     self.presentState = true
   }
   

@@ -18,6 +18,7 @@ class AppOpenAd: NSObject, AdProtocol {
   private var didLoadFail: Handler?
   private var didLoadSuccess: Handler?
   private var didShowFail: Handler?
+  private var willPresent: Handler?
   private var didEarnReward: Handler?
   private var didHide: Handler?
   
@@ -41,6 +42,7 @@ class AppOpenAd: NSObject, AdProtocol {
   
   func show(rootViewController: UIViewController,
             didFail: Handler?,
+            willPresent: Handler?,
             didEarnReward: Handler?,
             didHide: Handler?
   ) {
@@ -56,6 +58,7 @@ class AppOpenAd: NSObject, AdProtocol {
     }
     print("[AdMobManager] [AppOpenAd] Requested to show! (\(String(describing: adUnitID)))")
     self.didShowFail = didFail
+    self.willPresent = willPresent
     self.didHide = didHide
     self.didEarnReward = didEarnReward
     appOpenAd?.present(fromRootViewController: rootViewController)
@@ -74,6 +77,7 @@ extension AppOpenAd: GADFullScreenContentDelegate {
   
   func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
     print("[AdMobManager] [AppOpenAd] Will display! (\(String(describing: adUnitID)))")
+    willPresent?()
     self.presentState = true
   }
   

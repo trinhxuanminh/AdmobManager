@@ -15,4 +15,5 @@ struct Native: AdConfigProtocol {
   let description: String?
   let isFullScreen: Bool?
   let isPreload: Bool?
+  let timeout: Double?
 }

@@ -15,6 +15,7 @@ class NativeAd: NSObject {
   private weak var rootViewController: UIViewController?
   private var adUnitID: String?
   private var isFullScreen = false
+  private var timeout: Double?
   private var state: State = .wait
   private var didReceive: Handler?
   private var didError: Handler?
@@ -28,6 +29,7 @@ class NativeAd: NSObject {
       return
     }
     self.adUnitID = ad.id
+    self.timeout = ad.timeout
     if let isFullScreen = ad.isFullScreen {
       self.isFullScreen = isFullScreen
     }
@@ -51,12 +53,18 @@ class NativeAd: NSObject {
 extension NativeAd: GADNativeAdLoaderDelegate {
   func adLoader(_ adLoader: GADAdLoader,
                 didFailToReceiveAdWithError error: Error) {
+    guard state == .loading else {
+      return
+    }
     print("[AdMobManager] [NativeAd] Load fail (\(String(describing: adUnitID))) - \(String(describing: error))!")
     self.state = .error
     didError?()
   }
   
   func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
+    guard state == .loading else {
+      return
+    }
     print("[AdMobManager] [NativeAd] Did load! (\(String(describing: adUnitID)))")
     self.state = .receive
     self.nativeAd = nativeAd
@@ -112,6 +120,20 @@ extension NativeAd {
         options: options)
       self.adLoader?.delegate = self
       self.adLoader?.load(GADRequest())
+    }
+    
+    if let timeout {
+      DispatchQueue.main.asyncAfter(deadline: .now() + timeout) { [weak self] in
+        guard let self = self else {
+          return
+        }
+        guard state == .loading else {
+          return
+        }
+        print("[AdMobManager] [NativeAd] Load fail (\(String(describing: adUnitID))) - time out!")
+        self.state = .error
+        didError?()
+      }
     }
   }
 }

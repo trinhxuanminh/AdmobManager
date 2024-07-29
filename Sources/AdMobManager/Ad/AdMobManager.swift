@@ -225,6 +225,7 @@ public class AdMobManager {
                    name: String,
                    rootViewController: UIViewController,
                    didFail: Handler?,
+                   willPresent: Handler? = nil,
                    didEarnReward: Handler? = nil,
                    didHide: Handler?
   ) {
@@ -261,6 +262,7 @@ public class AdMobManager {
     }
     ad.show(rootViewController: rootViewController,
             didFail: didFail,
+            willPresent: willPresent,
             didEarnReward: didEarnReward,
             didHide: didHide)
   }

@@ -21,6 +21,7 @@ class SplashAd: NSObject, AdProtocol {
   private var didLoadFail: Handler?
   private var didLoadSuccess: Handler?
   private var didFail: Handler?
+  private var willPresent: Handler?
   private var didEarnReward: Handler?
   private var didHide: Handler?
   
@@ -48,6 +49,7 @@ class SplashAd: NSObject, AdProtocol {
   
   func show(rootViewController: UIViewController,
             didFail: Handler?,
+            willPresent: Handler?,
             didEarnReward: Handler?,
             didHide: Handler?
   ) {
@@ -63,6 +65,7 @@ class SplashAd: NSObject, AdProtocol {
     }
     print("[AdMobManager] [SplashAd] Requested to show! (\(String(describing: adUnitID)))")
     self.didFail = didFail
+    self.willPresent = willPresent
     self.didHide = didHide
     self.didEarnReward = didEarnReward
     splashAd?.present(fromRootViewController: rootViewController)
@@ -80,6 +83,7 @@ extension SplashAd: GADFullScreenContentDelegate {
   
   func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
     print("[AdMobManager] [SplashAd] Will display! (\(String(describing: adUnitID)))")
+    willPresent?()
     self.presentState = true
   }
   
