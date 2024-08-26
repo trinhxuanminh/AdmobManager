@@ -14,13 +14,15 @@ class LogEventManager {
   private var isWarning = false
   
   func log(event: Event) {
-    Analytics.logEvent(event.name, parameters: event.parameters)
-    print("[AdMobManager] [LogEventManager]", "[\(isValid(event.name, limit: 40))]", event.name, event.parameters ?? String())
-    
 #if DEBUG
+    print("[AdMobManager] [LogEventManager]", "[\(isValid(event.name, limit: 40))]", event.name, event.parameters ?? String())
     if isValid(event.name, limit: 40) {
       showWarning()
     }
+#endif
+    
+#if !DEBUG
+    Analytics.logEvent(event.name, parameters: event.parameters)
 #endif
   }
   
