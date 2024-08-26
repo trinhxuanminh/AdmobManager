@@ -74,6 +74,7 @@ extension LogEventManager {
       }
       self.isWarning = false
     }))
+    topVC.present(alert, animated: true)
   }
 }
 
