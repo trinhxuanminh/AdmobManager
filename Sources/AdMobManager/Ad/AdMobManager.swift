@@ -260,7 +260,6 @@ public class AdMobManager {
                    didHide: Handler?
   ) {
     self.rootViewController = rootViewController
-    LogEventManager.shared.log(event: .adShowCheck(placement))
     switch status(type: .reuse(type), placement: placement) {
     case false:
       print("[AdMobManager] Ads are not allowed to show! (\(placement))")
@@ -277,6 +276,7 @@ public class AdMobManager {
       didFail?()
       return
     }
+    LogEventManager.shared.log(event: .adShowCheck(adConfig.placement))
     guard let ad = listReuseAd[adConfig.name] else {
       print("[AdMobManager] Ads do not exist! (\(placement))")
       didFail?()
