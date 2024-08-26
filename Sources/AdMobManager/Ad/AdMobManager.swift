@@ -258,6 +258,7 @@ public class AdMobManager {
                    didEarnReward: Handler? = nil,
                    didHide: Handler?
   ) {
+    LogEventManager.shared.log(event: .adShowCheck(placementID))
     switch status(type: .reuse(type), placementID: placementID) {
     case false:
       print("[AdMobManager] Ads are not allowed to show! (\(placementID))")
@@ -398,6 +399,11 @@ extension AdMobManager {
       return
     }
     self.adMobConfig = adMobConfig
+    
+#if DEBUG
+    LogEventManager.shared.checkFormat(adConfig: adMobConfig)
+#endif
+    
     updateAdMobCache()
     
     if !didRequestConsent {

@@ -50,16 +50,18 @@ class RewardedInterstitialAd: NSObject, AdProtocol {
             didEarnReward: Handler?,
             didHide: Handler?
   ) {
-    guard isReady() else {
-      print("[AdMobManager] [RewardedInterstitialAd] Display failure - not ready to show! (\(String(describing: adUnitID)))")
-      didFail?()
-      return
-    }
     guard !presentState else {
       print("[AdMobManager] [RewardedInterstitialAd] Display failure - ads are being displayed! (\(String(describing: adUnitID)))")
       didFail?()
       return
     }
+    LogEventManager.shared.log(event: .adShowRequest(placementID))
+    guard isReady() else {
+      print("[AdMobManager] [RewardedInterstitialAd] Display failure - not ready to show! (\(String(describing: adUnitID)))")
+      didFail?()
+      return
+    }
+    LogEventManager.shared.log(event: .adShowReady(placementID))
     print("[AdMobManager] [RewardedInterstitialAd] Requested to show! (\(String(describing: adUnitID)))")
     self.placementID = placementID
     self.didShowFail = didFail
@@ -70,6 +72,7 @@ class RewardedInterstitialAd: NSObject, AdProtocol {
       guard let self else {
         return
       }
+      LogEventManager.shared.log(event: .adEarnReward(placementID))
       self.didEarnReward?()
     })
   }
@@ -80,6 +83,9 @@ extension RewardedInterstitialAd: GADFullScreenContentDelegate {
           didFailToPresentFullScreenContentWithError error: Error
   ) {
     print("[AdMobManager] [RewardedInterstitialAd] Did fail to show content! (\(String(describing: adUnitID)))")
+    if let placementID {
+      LogEventManager.shared.log(event: .adShowFail(placementID, error))
+    }
     didShowFail?()
     self.rewardedInterstitialAd = nil
     load()
@@ -87,12 +93,18 @@ extension RewardedInterstitialAd: GADFullScreenContentDelegate {
   
   func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
     print("[AdMobManager] [RewardedInterstitialAd] Will display! (\(String(describing: adUnitID)))")
+    if let placementID {
+      LogEventManager.shared.log(event: .adShowSuccess(placementID))
+    }
     willPresent?()
     self.presentState = true
   }
   
   func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
     print("[AdMobManager] [RewardedInterstitialAd] Did hide! (\(String(describing: adUnitID)))")
+    if let placementID {
+      LogEventManager.shared.log(event: .adShowHide(placementID))
+    }
     didHide?()
     self.rewardedInterstitialAd = nil
     self.presentState = false
@@ -129,6 +141,10 @@ extension RewardedInterstitialAd {
       
       self.isLoading = true
       print("[AdMobManager] [RewardedInterstitialAd] Start load! (\(String(describing: adUnitID)))")
+      if let name {
+        LogEventManager.shared.log(event: .adLoadRequest(name))
+        TimeManager.shared.start(event: .adLoad(.reuse(.rewardedInterstitial), name))
+      }
       
       let request = GADRequest()
       GADRewardedInterstitialAd.load(
@@ -142,8 +158,14 @@ extension RewardedInterstitialAd {
         guard error == nil, let ad = ad else {
           self.retryAttempt += 1
           guard self.retryAttempt == 1 else {
+            if let name {
+              LogEventManager.shared.log(event: .adLoadTryFail(name, error))
+            }
             self.didLoadFail?()
             return
+          }
+          if let name {
+            LogEventManager.shared.log(event: .adLoadFail(name, error))
           }
           let delaySec = 5.0
           print("[AdMobManager] [RewardedInterstitialAd] Did fail to load. Reload after \(delaySec)s! (\(String(describing: adUnitID))) - (\(String(describing: error)))")
@@ -151,12 +173,22 @@ extension RewardedInterstitialAd {
           return
         }
         print("[AdMobManager] [RewardedInterstitialAd] Did load! (\(String(describing: adUnitID)))")
+        if let name {
+          let time = TimeManager.shared.end(event: .adLoad(.reuse(.rewardedInterstitial), name))
+          LogEventManager.shared.log(event: .adLoadSuccess(name, time))
+        }
         self.retryAttempt = 0
         self.rewardedInterstitialAd = ad
         self.rewardedInterstitialAd?.fullScreenContentDelegate = self
         self.didLoadSuccess?()
         
         ad.paidEventHandler = { adValue in
+          if let name = self.name {
+            LogEventManager.shared.log(event: .adPayRevenue(name))
+            if adValue.value == 0 {
+              LogEventManager.shared.log(event: .adNoRevenue(name))
+            }
+          }
           let adRevenueParams: [AnyHashable: Any] = [
             kAppsFlyerAdRevenueCountry: "US",
             kAppsFlyerAdRevenueAdUnit: adUnitID as Any,

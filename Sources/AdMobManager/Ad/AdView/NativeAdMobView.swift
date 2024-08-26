@@ -69,6 +69,8 @@ open class NativeAdMobView: UIView, AdMobViewProtocol, GADVideoControllerDelegat
     self.didReceive = didReceive
     self.didError = didError
     
+    LogEventManager.shared.log(event: .adShowCheck(placementID))
+    
     switch AdMobManager.shared.status(type: .onceUsed(.native), placementID: placementID) {
     case false:
       print("[AdMobManager] [NativeAd] Ads are not allowed to show! (\(placementID))")
@@ -100,6 +102,8 @@ open class NativeAdMobView: UIView, AdMobViewProtocol, GADVideoControllerDelegat
     guard let nativeAd else {
       return
     }
+    
+    LogEventManager.shared.log(event: .adShowRequest(placementID))
     switch nativeAd.getState() {
     case .receive:
       config(ad: nativeAd.getAd())
@@ -175,6 +179,10 @@ extension NativeAdMobView {
     nativeAdView.advertiserView?.isHidden = nativeAd.advertiser == nil
     
     nativeAdView.nativeAd = nativeAd
+    
+    if let placementID {
+      LogEventManager.shared.log(event: .adShowSuccess(placementID))
+    }
     
     didReceive?()
   }

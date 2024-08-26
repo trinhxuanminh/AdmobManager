@@ -5,25 +5,75 @@
 //  Created by Trịnh Xuân Minh on 31/08/2023.
 //
 
-import Foundation
+import UIKit
 import FirebaseAnalytics
 
 class LogEventManager {
   static let shared = LogEventManager()
   
+  private var isWarning = false
+  
   func log(event: Event) {
     Analytics.logEvent(event.name, parameters: event.parameters)
-    print("[AdMobManager] [LogEventManager]", "[\(isValid(event.name))]", event.name, event.parameters ?? String())
+    print("[AdMobManager] [LogEventManager]", "[\(isValid(event.name, limit: 40))]", event.name, event.parameters ?? String())
+    
+#if DEBUG
+    if isValid(event.name, limit: 40) {
+      showWarning()
+    }
+#endif
   }
   
-  private func isValid(_ input: String) -> Bool {
-    guard input.count <= 40 else {
+  func checkFormat(adConfig: AdMobConfig) {
+    let maxCharacter = 23
+    
+    let body: ((AdConfigProtocol) -> Void) = { [weak self] ad in
+      guard let self else {
+        return
+      }
+      if isValid(ad.placementID, limit: maxCharacter) || isValid(ad.name, limit: maxCharacter) {
+        showWarning()
+        return
+      }
+    }
+    
+    adConfig.splashs?.forEach(body)
+    adConfig.appOpens?.forEach(body)
+    adConfig.interstitials?.forEach(body)
+    adConfig.rewardeds?.forEach(body)
+    adConfig.rewardedInterstitials?.forEach(body)
+    adConfig.banners?.forEach(body)
+    adConfig.natives?.forEach(body)
+  }
+}
+
+extension LogEventManager {
+  private func isValid(_ input: String, limit: Int) -> Bool {
+    guard input.count <= limit else {
       return false
     }
     let pattern = "^[a-zA-Z0-9_]*$"
     let regex = try! NSRegularExpression(pattern: pattern)
     let range = NSRange(location: 0, length: input.utf16.count)
     return regex.firstMatch(in: input, options: [], range: range) != nil
+  }
+  
+  private func showWarning() {
+    guard !isWarning else {
+      return
+    }
+    self.isWarning = true
+    
+    guard let topVC = UIApplication.topStackViewController() else {
+      return
+    }
+    let alert = UIAlertController(title: "Error", message: "Missing event", preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self] _ in
+      guard let self else {
+        return
+      }
+      self.isWarning = false
+    }))
   }
 }
 
@@ -53,20 +103,20 @@ enum Event {
   
   case adLoadRequest(String)
   case adLoadSuccess(String, Double)
-  case adLoadFail(String)
-  case adLoadTryFail(String)
+  case adLoadFail(String, Error?)
+  case adLoadTryFail(String, Error?)
   case adLoadTimeout(String)
-  case adShowCheck(String, String?)
-  case adShowRequest(String, String?)
-  case adShowReady(String, String?)
-  case adShowNoReady(String, String?)
-  case adShowSuccess(String, String?)
-  case adShowFail(String, String?)
-  case adShowHide(String, String?)
-  case adShowClick(String, String?)
-  case adEarnReward(String, String?)
-  case adPayRevenue(String, String?)
-  case adNoRevenue(String, String?)
+  case adPayRevenue(String)
+  case adNoRevenue(String)
+  case adShowCheck(String)
+  case adShowRequest(String)
+  case adShowReady(String)
+  case adShowNoReady(String)
+  case adShowSuccess(String)
+  case adShowFail(String, Error?)
+  case adShowHide(String)
+  case adShowClick(String)
+  case adEarnReward(String)
   
   var name: String {
     switch self {
@@ -111,38 +161,38 @@ enum Event {
     case .noTracking:
       return "No_Tracking"
       
-    case .adLoadRequest(let name):
-      return "AM_\(name)_Load_Request"
-    case .adLoadSuccess(let name, _):
-      return "AM_\(name)_Load_Success"
-    case .adLoadFail(let name):
-      return "AM_\(name)_Load_Fail"
-    case .adLoadTryFail(let name):
-      return "AM_\(name)_Load_TryFail"
-    case .adLoadTimeout(let name):
-      return "AM_\(name)_Load_Timeout"
-    case .adShowCheck(let placementID, _):
-      return "AM_\(placementID)_Show_Check"
-    case .adShowRequest(let placementID, _):
-      return "AM_\(placementID)_Show_Request"
-    case .adShowReady(let placementID, _):
-      return "AM_\(placementID)_Show_Ready"
-    case .adShowNoReady(let placementID, _):
-      return "AM_\(placementID)_Show_NoReady"
-    case .adShowSuccess(let placementID, _):
-      return "AM_\(placementID)_Show_Success"
-    case .adShowFail(let placementID, _):
-      return "AM_\(placementID)_Show_Fail"
-    case .adShowHide(let placementID, _):
-      return "AM_\(placementID)_Show_Hide"
-    case .adShowClick(let placementID, _):
-      return "AM_\(placementID)_Show_Click"
-    case .adEarnReward(let placementID, _):
-      return "AM_\(placementID)_Earn_Reward"
-    case .adPayRevenue(let placementID, _):
-      return "AM_\(placementID)_Pay_Revenue"
-    case .adNoRevenue(let placementID, _):
-      return "AM_\(placementID)_No_Revenue"
+    case .adLoadRequest(let id):
+      return "AM_\(id)_Load_Request"
+    case .adLoadSuccess(let id, _):
+      return "AM_\(id)_Load_Success"
+    case .adLoadFail(let id, _):
+      return "AM_\(id)_Load_Fail"
+    case .adLoadTryFail(let id, _):
+      return "AM_\(id)_Load_TryFail"
+    case .adLoadTimeout(let id):
+      return "AM_\(id)_Load_Timeout"
+    case .adPayRevenue(let id):
+      return "AM_\(id)_Pay_Revenue"
+    case .adNoRevenue(let id):
+      return "AM_\(id)_No_Revenue"
+    case .adShowCheck(let id):
+      return "AM_\(id)_Show_Check"
+    case .adShowRequest(let id):
+      return "AM_\(id)_Show_Request"
+    case .adShowReady(let id):
+      return "AM_\(id)_Show_Ready"
+    case .adShowNoReady(let id):
+      return "AM_\(id)_Show_NoReady"
+    case .adShowSuccess(let id):
+      return "AM_\(id)_Show_Success"
+    case .adShowFail(let id, _):
+      return "AM_\(id)_Show_Fail"
+    case .adShowHide(let id):
+      return "AM_\(id)_Show_Hide"
+    case .adShowClick(let id):
+      return "AM_\(id)_Show_Click"
+    case .adEarnReward(let id):
+      return "AM_\(id)_Earn_Reward"
     }
   }
   
@@ -150,61 +200,19 @@ enum Event {
     switch self {
     case .adLoadSuccess(_, let time):
       return ["time": time]
-    case .adShowCheck(_, let screen):
-      guard let screen else {
+    case .adShowCheck, .adShowRequest, .adShowReady, .adShowNoReady, .adShowSuccess, .adShowHide, .adShowClick, .adEarnReward, .adPayRevenue, .adNoRevenue:
+      guard let topVC = UIApplication.topStackViewController() else {
         return nil
       }
-      return ["screen": screen]
-    case .adShowRequest(_, let screen):
-      guard let screen else {
+      return ["screen": topVC.getScreen()]
+    case .adLoadFail(_, let error), .adLoadTryFail(_, let error), .adShowFail(_, let error):
+      guard let topVC = UIApplication.topStackViewController() else {
         return nil
       }
-      return ["screen": screen]
-    case .adShowReady(_, let screen):
-      guard let screen else {
-        return nil
-      }
-      return ["screen": screen]
-    case .adShowNoReady(_, let screen):
-      guard let screen else {
-        return nil
-      }
-      return ["screen": screen]
-    case .adShowSuccess(_, let screen):
-      guard let screen else {
-        return nil
-      }
-      return ["screen": screen]
-    case .adShowFail(_, let screen):
-      guard let screen else {
-        return nil
-      }
-      return ["screen": screen]
-    case .adShowHide(_, let screen):
-      guard let screen else {
-        return nil
-      }
-      return ["screen": screen]
-    case .adShowClick(_, let screen):
-      guard let screen else {
-        return nil
-      }
-      return ["screen": screen]
-    case .adEarnReward(_, let screen):
-      guard let screen else {
-        return nil
-      }
-      return ["screen": screen]
-    case .adPayRevenue(_, let screen):
-      guard let screen else {
-        return nil
-      }
-      return ["screen": screen]
-    case .adNoRevenue(_, let screen):
-      guard let screen else {
-        return nil
-      }
-      return ["screen": screen]
+      return [
+        "screen": topVC.getScreen(),
+        "error_code": (error as? NSError)?.code ?? "-1"
+      ]
     default:
       return nil
     }

@@ -113,12 +113,19 @@ extension BannerAdMobView: GADBannerViewDelegate {
                          didFailToReceiveAdWithError error: Error
   ) {
     print("[AdMobManager] [BannerAd] Load fail (\(String(describing: adUnitID))) - \(String(describing: error))!")
+    if let placementID {
+      LogEventManager.shared.log(event: .adLoadFail(placementID, error))
+    }
     self.state = .error
     errored()
   }
   
   public func bannerViewDidReceiveAd(_ bannerView: GADBannerView) {
     print("[AdMobManager] [BannerAd] Did load! (\(String(describing: adUnitID)))")
+    if let placementID {
+      let time = TimeManager.shared.end(event: .adLoad(.onceUsed(.banner), placementID))
+      LogEventManager.shared.log(event: .adLoadSuccess(placementID, time))
+    }
     self.state = .receive
     self.bringSubviewToFront(self.bannerAdView)
     didReceive?()
@@ -126,6 +133,12 @@ extension BannerAdMobView: GADBannerViewDelegate {
     bannerView.paidEventHandler = { [weak self] adValue in
       guard let self else {
         return
+      }
+      if let placementID {
+        LogEventManager.shared.log(event: .adPayRevenue(placementID))
+        if adValue.value == 0 {
+          LogEventManager.shared.log(event: .adNoRevenue(placementID))
+        }
       }
       let adRevenueParams: [AnyHashable: Any] = [
         kAppsFlyerAdRevenueCountry: "US",
@@ -168,6 +181,10 @@ extension BannerAdMobView {
       self.bannerAdView?.delegate = self
       self.bannerAdView?.rootViewController = rootViewController
       
+      if let placementID {
+        LogEventManager.shared.log(event: .adLoadRequest(placementID))
+        TimeManager.shared.start(event: .adLoad(.onceUsed(.banner), placementID))
+      }
       let request = GADRequest()
       
       if let anchored = self.anchored {

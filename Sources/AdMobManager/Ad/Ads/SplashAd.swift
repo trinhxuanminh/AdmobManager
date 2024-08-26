@@ -57,16 +57,18 @@ class SplashAd: NSObject, AdProtocol {
             didEarnReward: Handler?,
             didHide: Handler?
   ) {
-    guard isExist() else {
-      print("[AdMobManager] [SplashAd] Display failure - not ready to show! (\(String(describing: adUnitID)))")
-      didFail?()
-      return
-    }
     guard !presentState else {
       print("[AdMobManager] [SplashAd] Display failure - ads are being displayed! (\(String(describing: adUnitID)))")
       didFail?()
       return
     }
+    LogEventManager.shared.log(event: .adShowRequest(placementID))
+    guard isExist() else {
+      print("[AdMobManager] [SplashAd] Display failure - not ready to show! (\(String(describing: adUnitID)))")
+      didFail?()
+      return
+    }
+    LogEventManager.shared.log(event: .adShowReady(placementID))
     print("[AdMobManager] [SplashAd] Requested to show! (\(String(describing: adUnitID)))")
     self.placementID = placementID
     self.didFail = didFail
@@ -82,18 +84,27 @@ extension SplashAd: GADFullScreenContentDelegate {
           didFailToPresentFullScreenContentWithError error: Error
   ) {
     print("[AdMobManager] [SplashAd] Did fail to show content! (\(String(describing: adUnitID)))")
+    if let placementID {
+      LogEventManager.shared.log(event: .adShowFail(placementID, error))
+    }
     didFail?()
     self.splashAd = nil
   }
   
   func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
     print("[AdMobManager] [SplashAd] Will display! (\(String(describing: adUnitID)))")
+    if let placementID {
+      LogEventManager.shared.log(event: .adShowSuccess(placementID))
+    }
     willPresent?()
     self.presentState = true
   }
   
   func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
     print("[AdMobManager] [SplashAd] Did hide! (\(String(describing: adUnitID)))")
+    if let placementID {
+      LogEventManager.shared.log(event: .adShowHide(placementID))
+    }
     didHide?()
     self.presentState = false
     self.splashAd = nil
@@ -120,6 +131,10 @@ extension SplashAd {
       self.isLoading = true
       self.fire()
       print("[AdMobManager] [SplashAd] Start load! (\(String(describing: adUnitID)))")
+      if let name {
+        LogEventManager.shared.log(event: .adLoadRequest(name))
+        TimeManager.shared.start(event: .adLoad(.reuse(.splash), name))
+      }
       
       let request = GADRequest()
       GADInterstitialAd.load(
@@ -135,15 +150,28 @@ extension SplashAd {
         self.invalidate()
         guard error == nil, let ad = ad else {
           print("[AdMobManager] [SplashAd] Load fail (\(String(describing: adUnitID))) - \(String(describing: error))!")
+          if let name {
+            LogEventManager.shared.log(event: .adLoadFail(name, error))
+          }
           self.didLoadFail?()
           return
         }
         print("[AdMobManager] [SplashAd] Did load! (\(String(describing: adUnitID)))")
+        if let name {
+          let time = TimeManager.shared.end(event: .adLoad(.reuse(.splash), name))
+          LogEventManager.shared.log(event: .adLoadSuccess(name, time))
+        }
         self.splashAd = ad
         self.splashAd?.fullScreenContentDelegate = self
         self.didLoadSuccess?()
         
         ad.paidEventHandler = { adValue in
+          if let name = self.name {
+            LogEventManager.shared.log(event: .adPayRevenue(name))
+            if adValue.value == 0 {
+              LogEventManager.shared.log(event: .adNoRevenue(name))
+            }
+          }
           let adRevenueParams: [AnyHashable: Any] = [
             kAppsFlyerAdRevenueCountry: "US",
             kAppsFlyerAdRevenueAdUnit: adUnitID as Any,
@@ -186,6 +214,9 @@ extension SplashAd {
       return
     }
     invalidate()
+    if let name {
+      LogEventManager.shared.log(event: .adLoadTimeout(name))
+    }
     didLoadFail?()
   }
 }
