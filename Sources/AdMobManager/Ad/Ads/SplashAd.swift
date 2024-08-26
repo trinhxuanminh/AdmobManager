@@ -12,6 +12,8 @@ import AppsFlyerAdRevenue
 class SplashAd: NSObject, AdProtocol {
   private var splashAd: GADInterstitialAd?
   private var adUnitID: String?
+  private var placementID: String?
+  private var name: String?
   private var presentState = false
   private var isLoading = false
   private var timeout: Double?
@@ -30,8 +32,9 @@ class SplashAd: NSObject, AdProtocol {
     self.didLoadSuccess = didSuccess
   }
   
-  func config(id: String) {
+  func config(id: String, name: String) {
     self.adUnitID = id
+    self.name = name
     load()
   }
   
@@ -47,7 +50,8 @@ class SplashAd: NSObject, AdProtocol {
     return splashAd != nil
   }
   
-  func show(rootViewController: UIViewController,
+  func show(placementID: String,
+            rootViewController: UIViewController,
             didFail: Handler?,
             willPresent: Handler?,
             didEarnReward: Handler?,
@@ -64,6 +68,7 @@ class SplashAd: NSObject, AdProtocol {
       return
     }
     print("[AdMobManager] [SplashAd] Requested to show! (\(String(describing: adUnitID)))")
+    self.placementID = placementID
     self.didFail = didFail
     self.willPresent = willPresent
     self.didHide = didHide

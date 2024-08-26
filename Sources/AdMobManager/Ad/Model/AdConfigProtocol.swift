@@ -8,9 +8,10 @@
 import Foundation
 
 protocol AdConfigProtocol: Codable {
-  var name: String { get }
+  var placementID: String { get }
   var status: Bool { get }
-  var isAuto: Bool? { get }
+  var name: String { get }
   var id: String { get }
+  var isAuto: Bool? { get }
   var description: String? { get }
 }

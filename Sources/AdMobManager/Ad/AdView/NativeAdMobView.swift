@@ -18,6 +18,7 @@ import GoogleMobileAds
 open class NativeAdMobView: UIView, AdMobViewProtocol, GADVideoControllerDelegate {
   private var nativeAdView: GADNativeAdView?
   private var nativeAd: NativeAd?
+  private var placementID: String?
   private var didReceive: Handler?
   private var didError: Handler?
   
@@ -57,19 +58,20 @@ open class NativeAdMobView: UIView, AdMobViewProtocol, GADVideoControllerDelegat
   
   open func setColor() {}
   
-  public func load(name: String,
+  public func load(placementID: String,
                    nativeAdView: GADNativeAdView,
                    rootViewController: UIViewController? = nil,
                    didReceive: Handler?,
                    didError: Handler?
   ) {
+    self.placementID = placementID
     self.nativeAdView = nativeAdView
     self.didReceive = didReceive
     self.didError = didError
     
-    switch AdMobManager.shared.status(type: .onceUsed(.native), name: name) {
+    switch AdMobManager.shared.status(type: .onceUsed(.native), placementID: placementID) {
     case false:
-      print("[AdMobManager] [NativeAd] Ads are not allowed to show! (\(name))")
+      print("[AdMobManager] [NativeAd] Ads are not allowed to show! (\(placementID))")
       errored()
       return
     case true:
@@ -80,14 +82,14 @@ open class NativeAdMobView: UIView, AdMobViewProtocol, GADVideoControllerDelegat
     }
     
     if nativeAd == nil {
-      guard let native = AdMobManager.shared.getAd(type: .onceUsed(.native), name: name) as? Native else {
+      guard let native = AdMobManager.shared.getAd(type: .onceUsed(.native), placementID: placementID) as? Native else {
         return
       }
       guard native.status else {
         return
       }
       
-      if let nativeAd = AdMobManager.shared.getNativePreload(name: name) {
+      if let nativeAd = AdMobManager.shared.getNativePreload(placementID: placementID) {
         self.nativeAd = nativeAd
       } else {
         self.nativeAd = NativeAd()

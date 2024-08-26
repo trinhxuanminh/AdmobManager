@@ -8,8 +8,9 @@
 import Foundation
 
 struct RewardedInterstitial: AdConfigProtocol {
-  let name: String
+  let placementID: String
   let status: Bool
+  let name: String
   let id: String
   let isAuto: Bool?
   let description: String?

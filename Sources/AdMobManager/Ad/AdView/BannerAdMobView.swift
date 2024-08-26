@@ -29,6 +29,7 @@ open class BannerAdMobView: UIView {
   
   private weak var rootViewController: UIViewController?
   private var adUnitID: String?
+  private var placementID: String?
   private var anchored: Anchored?
   private var state: State = .wait
   private var didReceive: Handler?
@@ -69,11 +70,12 @@ open class BannerAdMobView: UIView {
     NSLayoutConstraint.activate(constraints)
   }
   
-  public func load(name: String,
+  public func load(placementID: String,
                    rootViewController: UIViewController,
                    didReceive: Handler?,
                    didError: Handler?
   ) {
+    self.placementID = placementID
     self.didReceive = didReceive
     self.didError = didError
     self.rootViewController = rootViewController
@@ -81,7 +83,7 @@ open class BannerAdMobView: UIView {
     guard adUnitID == nil else {
       return
     }
-    switch AdMobManager.shared.status(type: .onceUsed(.banner), name: name) {
+    switch AdMobManager.shared.status(type: .onceUsed(.banner), placementID: placementID) {
     case false:
       print("[AdMobManager] [BannerAd] Ads are not allowed to show! (\(String(describing: adUnitID)))")
       errored()
@@ -92,7 +94,7 @@ open class BannerAdMobView: UIView {
       errored()
       return
     }
-    guard let ad = AdMobManager.shared.getAd(type: .onceUsed(.banner), name: name) as? Banner else {
+    guard let ad = AdMobManager.shared.getAd(type: .onceUsed(.banner), placementID: placementID) as? Banner else {
       return
     }
     guard ad.status else {

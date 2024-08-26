@@ -109,7 +109,7 @@ public class AdMobManager {
                              privateKey: privateKey)
   }
   
-  public func status(type: AdType, name: String) -> Bool? {
+  public func status(type: AdType, placementID: String) -> Bool? {
     guard !isPremium else {
       print("[AdMobManager] Premium!")
       return nil
@@ -125,8 +125,8 @@ public class AdMobManager {
       print("[AdMobManager] Can't Request Ads!")
       return nil
     }
-    guard let adConfig = getAd(type: type, name: name) as? AdConfigProtocol else {
-      print("[AdMobManager] Ads don't exist! (\(name))")
+    guard let adConfig = getAd(type: type, placementID: placementID) as? AdConfigProtocol else {
+      print("[AdMobManager] Ads don't exist! (\(placementID))")
       return nil
     }
     if AutoRelease.shared.isRelease == false, adConfig.isAuto == true {
@@ -136,13 +136,13 @@ public class AdMobManager {
   }
   
   public func load(type: Reuse,
-                   name: String,
+                   placementID: String,
                    success: Handler? = nil,
                    fail: Handler? = nil
   ) {
-    switch status(type: .reuse(type), name: name) {
+    switch status(type: .reuse(type), placementID: placementID) {
     case false:
-      print("[AdMobManager] Ads are not allowed to show! (\(name))")
+      print("[AdMobManager] Ads are not allowed to show! (\(placementID))")
       fail?()
       return
     case true:
@@ -151,12 +151,12 @@ public class AdMobManager {
       fail?()
       return
     }
-    guard let adConfig = getAd(type: .reuse(type), name: name) as? AdConfigProtocol else {
-      print("[AdMobManager] Ads don't exist! (\(name))")
+    guard let adConfig = getAd(type: .reuse(type), placementID: placementID) as? AdConfigProtocol else {
+      print("[AdMobManager] Ads don't exist! (\(placementID))")
       fail?()
       return
     }
-    guard listReuseAd[type.rawValue + adConfig.id] == nil else {
+    guard listReuseAd[adConfig.name] == nil else {
       fail?()
       return
     }
@@ -165,7 +165,7 @@ public class AdMobManager {
     switch type {
     case .splash:
       guard let splash = adConfig as? Splash else {
-        print("[AdMobManager] Format conversion error! (\(name))")
+        print("[AdMobManager] Format conversion error! (\(placementID))")
         fail?()
         return
       }
@@ -182,17 +182,46 @@ public class AdMobManager {
       adProtocol = RewardedInterstitialAd()
     }
     adProtocol.config(didFail: fail, didSuccess: success)
-    adProtocol.config(id: adConfig.id)
-    self.listReuseAd[type.rawValue + adConfig.id] = adProtocol
+    adProtocol.config(id: adConfig.id, name: adConfig.name)
+    self.listReuseAd[adConfig.name] = adProtocol
   }
   
-  public func preloadNative(name: String,
+  public func isReady(type: Reuse, placementID: String) -> Bool {
+    switch status(type: .reuse(type), placementID: placementID) {
+    case false:
+      print("[AdMobManager] Ads are not allowed to show! (\(placementID))")
+      return false
+    case true:
+      break
+    default:
+      return false
+    }
+    guard let adConfig = getAd(type: .reuse(type), placementID: placementID) as? AdConfigProtocol else {
+      print("[AdMobManager] Ads don't exist! (\(placementID))")
+      return false
+    }
+    guard let ad = listReuseAd[adConfig.name] else {
+      print("[AdMobManager] Ads do not exist! (\(placementID))")
+      return false
+    }
+    guard !checkIsPresent() else {
+      print("[AdMobManager] Ads display failure - other ads is showing! (\(placementID))")
+      return false
+    }
+    guard checkFrequency(adConfig: adConfig, ad: ad) else {
+      print("[AdMobManager] Ads hasn't been displayed yet! (\(placementID))")
+      return false
+    }
+    return true
+  }
+  
+  public func preloadNative(placementID: String,
                             success: Handler? = nil,
                             fail: Handler? = nil
   ) {
-    switch status(type: .onceUsed(.native), name: name) {
+    switch status(type: .onceUsed(.native), placementID: placementID) {
     case false:
-      print("[AdMobManager] Ads are not allowed to show! (\(name))")
+      print("[AdMobManager] Ads are not allowed to show! (\(placementID))")
       fail?()
       return
     case true:
@@ -201,37 +230,37 @@ public class AdMobManager {
       fail?()
       return
     }
-    guard let native = getAd(type: .onceUsed(.native), name: name) as? Native else {
-      print("[AdMobManager] Ads don't exist! (\(name))")
+    guard let native = getAd(type: .onceUsed(.native), placementID: placementID) as? Native else {
+      print("[AdMobManager] Ads don't exist! (\(placementID))")
       fail?()
       return
     }
     guard native.isPreload == true else {
-      print("[AdMobManager] Ads are not preloaded! (\(name))")
+      print("[AdMobManager] Ads are not preloaded! (\(placementID))")
       fail?()
       return
     }
-    guard listNativeAd[name] == nil else {
+    guard listNativeAd[placementID] == nil else {
       fail?()
       return
     }
     let nativeAd = NativeAd()
     nativeAd.bind(didReceive: success, didError: fail)
     nativeAd.config(ad: native, rootViewController: nil)
-    self.listNativeAd[name] = nativeAd
+    self.listNativeAd[placementID] = nativeAd
   }
   
   public func show(type: Reuse,
-                   name: String,
+                   placementID: String,
                    rootViewController: UIViewController,
                    didFail: Handler?,
                    willPresent: Handler? = nil,
                    didEarnReward: Handler? = nil,
                    didHide: Handler?
   ) {
-    switch status(type: .reuse(type), name: name) {
+    switch status(type: .reuse(type), placementID: placementID) {
     case false:
-      print("[AdMobManager] Ads are not allowed to show! (\(name))")
+      print("[AdMobManager] Ads are not allowed to show! (\(placementID))")
       didFail?()
       return
     case true:
@@ -240,27 +269,28 @@ public class AdMobManager {
       didFail?()
       return
     }
-    guard let adConfig = getAd(type: .reuse(type), name: name) as? AdConfigProtocol else {
-      print("[AdMobManager] Ads don't exist! (\(name))")
+    guard let adConfig = getAd(type: .reuse(type), placementID: placementID) as? AdConfigProtocol else {
+      print("[AdMobManager] Ads don't exist! (\(placementID))")
       didFail?()
       return
     }
-    guard let ad = listReuseAd[type.rawValue + adConfig.id] else {
-      print("[AdMobManager] Ads do not exist! (\(name))")
+    guard let ad = listReuseAd[adConfig.name] else {
+      print("[AdMobManager] Ads do not exist! (\(placementID))")
       didFail?()
       return
     }
     guard !checkIsPresent() else {
-      print("[AdMobManager] Ads display failure - other ads is showing! (\(name))")
+      print("[AdMobManager] Ads display failure - other ads is showing! (\(placementID))")
       didFail?()
       return
     }
     guard checkFrequency(adConfig: adConfig, ad: ad) else {
-      print("[AdMobManager] Ads hasn't been displayed yet! (\(name))")
+      print("[AdMobManager] Ads hasn't been displayed yet! (\(placementID))")
       didFail?()
       return
     }
-    ad.show(rootViewController: rootViewController,
+    ad.show(placementID: adConfig.placementID,
+            rootViewController: rootViewController,
             didFail: didFail,
             willPresent: willPresent,
             didEarnReward: didEarnReward,
@@ -298,7 +328,7 @@ public class AdMobManager {
 }
 
 extension AdMobManager {
-  func getAd(type: AdType, name: String) -> Any? {
+  func getAd(type: AdType, placementID: String) -> Any? {
     guard let adMobConfig else {
       return nil
     }
@@ -306,34 +336,28 @@ extension AdMobManager {
     case .onceUsed(let type):
       switch type {
       case .banner:
-        return adMobConfig.banners?.first(where: { $0.name == name })
+        return adMobConfig.banners?.first(where: { $0.placementID == placementID })
       case .native:
-        return adMobConfig.natives?.first(where: { $0.name == name })
+        return adMobConfig.natives?.first(where: { $0.placementID == placementID })
       }
     case .reuse(let type):
       switch type {
       case .splash:
-        return adMobConfig.splashs?.first(where: { $0.name == name })
+        return adMobConfig.splashs?.first(where: { $0.placementID == placementID })
       case .appOpen:
-        guard
-          let appOpen = adMobConfig.appOpen,
-          appOpen.name == name
-        else {
-          return nil
-        }
-        return adMobConfig.appOpen
+        return adMobConfig.appOpens?.first(where: { $0.placementID == placementID })
       case .interstitial:
-        return adMobConfig.interstitials?.first(where: { $0.name == name })
+        return adMobConfig.interstitials?.first(where: { $0.placementID == placementID })
       case .rewarded:
-        return adMobConfig.rewardeds?.first(where: { $0.name == name })
+        return adMobConfig.rewardeds?.first(where: { $0.placementID == placementID })
       case .rewardedInterstitial:
-        return adMobConfig.rewardedInterstitials?.first(where: { $0.name == name })
+        return adMobConfig.rewardedInterstitials?.first(where: { $0.placementID == placementID })
       }
     }
   }
   
-  func getNativePreload(name: String) -> NativeAd? {
-    return listNativeAd[name]
+  func getNativePreload(placementID: String) -> NativeAd? {
+    return listNativeAd[placementID]
   }
 }
 
@@ -476,14 +500,14 @@ extension AdMobManager {
     else {
       return true
     }
-    let countClick = FrequencyManager.shared.getCount(name: adConfig.name) + 1
+    let countClick = FrequencyManager.shared.getCount(placementID: adConfig.placementID) + 1
     guard countClick >= start else {
-      FrequencyManager.shared.increaseCount(name: adConfig.name)
+      FrequencyManager.shared.increaseCount(placementID: adConfig.placementID)
       return false
     }
     let isShow = (countClick - start) % frequency == 0
-    if !isShow || ad.isExist!() {
-      FrequencyManager.shared.increaseCount(name: adConfig.name)
+    if !isShow || ad.isExist() {
+      FrequencyManager.shared.increaseCount(placementID: adConfig.placementID)
     }
     return isShow
   }

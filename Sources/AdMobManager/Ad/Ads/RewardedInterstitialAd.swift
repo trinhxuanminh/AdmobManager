@@ -12,6 +12,8 @@ import AppsFlyerAdRevenue
 class RewardedInterstitialAd: NSObject, AdProtocol {
   private var rewardedInterstitialAd: GADRewardedInterstitialAd?
   private var adUnitID: String?
+  private var placementID: String?
+  private var name: String?
   private var presentState = false
   private var isLoading = false
   private var retryAttempt = 0
@@ -27,8 +29,9 @@ class RewardedInterstitialAd: NSObject, AdProtocol {
     self.didLoadSuccess = didSuccess
   }
   
-  func config(id: String) {
+  func config(id: String, name: String) {
     self.adUnitID = id
+    self.name = name
     load()
   }
   
@@ -40,7 +43,8 @@ class RewardedInterstitialAd: NSObject, AdProtocol {
     return rewardedInterstitialAd != nil
   }
   
-  func show(rootViewController: UIViewController,
+  func show(placementID: String,
+            rootViewController: UIViewController,
             didFail: Handler?,
             willPresent: Handler?,
             didEarnReward: Handler?,
@@ -57,6 +61,7 @@ class RewardedInterstitialAd: NSObject, AdProtocol {
       return
     }
     print("[AdMobManager] [RewardedInterstitialAd] Requested to show! (\(String(describing: adUnitID)))")
+    self.placementID = placementID
     self.didShowFail = didFail
     self.willPresent = willPresent
     self.didHide = didHide
