@@ -59,8 +59,8 @@ extension NativeAd: GADNativeAdLoaderDelegate {
       return
     }
     print("[AdMobManager] [NativeAd] Load fail (\(String(describing: adUnitID))) - \(String(describing: error))!")
-    if let placementID = ad?.placementID {
-      LogEventManager.shared.log(event: .adLoadFail(placementID, error))
+    if let placement = ad?.placement {
+      LogEventManager.shared.log(event: .adLoadFail(placement, error))
     }
     self.state = .error
     didError?()
@@ -71,9 +71,9 @@ extension NativeAd: GADNativeAdLoaderDelegate {
       return
     }
     print("[AdMobManager] [NativeAd] Did load! (\(String(describing: adUnitID)))")
-    if let placementID = ad?.placementID {
-      let time = TimeManager.shared.end(event: .adLoad(.onceUsed(.native), placementID))
-      LogEventManager.shared.log(event: .adLoadSuccess(placementID, time))
+    if let placement = ad?.placement {
+      let time = TimeManager.shared.end(event: .adLoad(.onceUsed(.native), placement))
+      LogEventManager.shared.log(event: .adLoadSuccess(placement, time))
     }
     self.state = .receive
     self.nativeAd = nativeAd
@@ -83,10 +83,10 @@ extension NativeAd: GADNativeAdLoaderDelegate {
       guard let self else {
         return
       }
-      if let placementID = ad?.placementID {
-        LogEventManager.shared.log(event: .adPayRevenue(placementID))
+      if let placement = ad?.placement {
+        LogEventManager.shared.log(event: .adPayRevenue(placement))
         if adValue.value == 0 {
-          LogEventManager.shared.log(event: .adNoRevenue(placementID))
+          LogEventManager.shared.log(event: .adNoRevenue(placement))
         }
       }
       let adRevenueParams: [AnyHashable: Any] = [
@@ -128,9 +128,9 @@ extension NativeAd {
         aspectRatioOption.mediaAspectRatio = .portrait
         options = [aspectRatioOption]
       }
-      if let placementID = ad?.placementID {
-        LogEventManager.shared.log(event: .adLoadRequest(placementID))
-        TimeManager.shared.start(event: .adLoad(.onceUsed(.native), placementID))
+      if let placement = ad?.placement {
+        LogEventManager.shared.log(event: .adLoadRequest(placement))
+        TimeManager.shared.start(event: .adLoad(.onceUsed(.native), placement))
       }
       self.adLoader = GADAdLoader(
         adUnitID: adUnitID,
@@ -150,8 +150,8 @@ extension NativeAd {
           return
         }
         print("[AdMobManager] [NativeAd] Load fail (\(String(describing: adUnitID))) - time out!")
-        if let placementID = ad?.placementID {
-          LogEventManager.shared.log(event: .adLoadTimeout(placementID))
+        if let placement = ad?.placement {
+          LogEventManager.shared.log(event: .adLoadTimeout(placement))
         }
         self.state = .error
         didError?()

@@ -12,7 +12,7 @@ protocol AdProtocol {
   func config(id: String, name: String)
   func isPresent() -> Bool
   func isExist() -> Bool
-  func show(placementID: String,
+  func show(placement: String,
             rootViewController: UIViewController,
             didFail: Handler?,
             willPresent: Handler?,

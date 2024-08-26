@@ -8,7 +8,7 @@
 import Foundation
 
 struct Rewarded: AdConfigProtocol {
-  let placementID: String
+  let placement: String
   let status: Bool
   let name: String
   let id: String

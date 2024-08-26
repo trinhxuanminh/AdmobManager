@@ -29,7 +29,7 @@ open class BannerAdMobView: UIView {
   
   private weak var rootViewController: UIViewController?
   private var adUnitID: String?
-  private var placementID: String?
+  private var placement: String?
   private var anchored: Anchored?
   private var state: State = .wait
   private var didReceive: Handler?
@@ -70,12 +70,12 @@ open class BannerAdMobView: UIView {
     NSLayoutConstraint.activate(constraints)
   }
   
-  public func load(placementID: String,
+  public func load(placement: String,
                    rootViewController: UIViewController,
                    didReceive: Handler?,
                    didError: Handler?
   ) {
-    self.placementID = placementID
+    self.placement = placement
     self.didReceive = didReceive
     self.didError = didError
     self.rootViewController = rootViewController
@@ -83,7 +83,7 @@ open class BannerAdMobView: UIView {
     guard adUnitID == nil else {
       return
     }
-    switch AdMobManager.shared.status(type: .onceUsed(.banner), placementID: placementID) {
+    switch AdMobManager.shared.status(type: .onceUsed(.banner), placement: placement) {
     case false:
       print("[AdMobManager] [BannerAd] Ads are not allowed to show! (\(String(describing: adUnitID)))")
       errored()
@@ -94,7 +94,7 @@ open class BannerAdMobView: UIView {
       errored()
       return
     }
-    guard let ad = AdMobManager.shared.getAd(type: .onceUsed(.banner), placementID: placementID) as? Banner else {
+    guard let ad = AdMobManager.shared.getAd(type: .onceUsed(.banner), placement: placement) as? Banner else {
       return
     }
     guard ad.status else {
@@ -113,8 +113,8 @@ extension BannerAdMobView: GADBannerViewDelegate {
                          didFailToReceiveAdWithError error: Error
   ) {
     print("[AdMobManager] [BannerAd] Load fail (\(String(describing: adUnitID))) - \(String(describing: error))!")
-    if let placementID {
-      LogEventManager.shared.log(event: .adLoadFail(placementID, error))
+    if let placement {
+      LogEventManager.shared.log(event: .adLoadFail(placement, error))
     }
     self.state = .error
     errored()
@@ -122,9 +122,9 @@ extension BannerAdMobView: GADBannerViewDelegate {
   
   public func bannerViewDidReceiveAd(_ bannerView: GADBannerView) {
     print("[AdMobManager] [BannerAd] Did load! (\(String(describing: adUnitID)))")
-    if let placementID {
-      let time = TimeManager.shared.end(event: .adLoad(.onceUsed(.banner), placementID))
-      LogEventManager.shared.log(event: .adLoadSuccess(placementID, time))
+    if let placement {
+      let time = TimeManager.shared.end(event: .adLoad(.onceUsed(.banner), placement))
+      LogEventManager.shared.log(event: .adLoadSuccess(placement, time))
     }
     self.state = .receive
     self.bringSubviewToFront(self.bannerAdView)
@@ -134,10 +134,10 @@ extension BannerAdMobView: GADBannerViewDelegate {
       guard let self else {
         return
       }
-      if let placementID {
-        LogEventManager.shared.log(event: .adPayRevenue(placementID))
+      if let placement {
+        LogEventManager.shared.log(event: .adPayRevenue(placement))
         if adValue.value == 0 {
-          LogEventManager.shared.log(event: .adNoRevenue(placementID))
+          LogEventManager.shared.log(event: .adNoRevenue(placement))
         }
       }
       let adRevenueParams: [AnyHashable: Any] = [
@@ -181,9 +181,9 @@ extension BannerAdMobView {
       self.bannerAdView?.delegate = self
       self.bannerAdView?.rootViewController = rootViewController
       
-      if let placementID {
-        LogEventManager.shared.log(event: .adLoadRequest(placementID))
-        TimeManager.shared.start(event: .adLoad(.onceUsed(.banner), placementID))
+      if let placement {
+        LogEventManager.shared.log(event: .adLoadRequest(placement))
+        TimeManager.shared.start(event: .adLoad(.onceUsed(.banner), placement))
       }
       let request = GADRequest()
       

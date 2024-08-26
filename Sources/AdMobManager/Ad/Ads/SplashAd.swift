@@ -12,7 +12,7 @@ import AppsFlyerAdRevenue
 class SplashAd: NSObject, AdProtocol {
   private var splashAd: GADInterstitialAd?
   private var adUnitID: String?
-  private var placementID: String?
+  private var placement: String?
   private var name: String?
   private var presentState = false
   private var isLoading = false
@@ -50,7 +50,7 @@ class SplashAd: NSObject, AdProtocol {
     return splashAd != nil
   }
   
-  func show(placementID: String,
+  func show(placement: String,
             rootViewController: UIViewController,
             didFail: Handler?,
             willPresent: Handler?,
@@ -62,15 +62,15 @@ class SplashAd: NSObject, AdProtocol {
       didFail?()
       return
     }
-    LogEventManager.shared.log(event: .adShowRequest(placementID))
+    LogEventManager.shared.log(event: .adShowRequest(placement))
     guard isExist() else {
       print("[AdMobManager] [SplashAd] Display failure - not ready to show! (\(String(describing: adUnitID)))")
       didFail?()
       return
     }
-    LogEventManager.shared.log(event: .adShowReady(placementID))
+    LogEventManager.shared.log(event: .adShowReady(placement))
     print("[AdMobManager] [SplashAd] Requested to show! (\(String(describing: adUnitID)))")
-    self.placementID = placementID
+    self.placement = placement
     self.didFail = didFail
     self.willPresent = willPresent
     self.didHide = didHide
@@ -84,8 +84,8 @@ extension SplashAd: GADFullScreenContentDelegate {
           didFailToPresentFullScreenContentWithError error: Error
   ) {
     print("[AdMobManager] [SplashAd] Did fail to show content! (\(String(describing: adUnitID)))")
-    if let placementID {
-      LogEventManager.shared.log(event: .adShowFail(placementID, error))
+    if let placement {
+      LogEventManager.shared.log(event: .adShowFail(placement, error))
     }
     didFail?()
     self.splashAd = nil
@@ -93,8 +93,8 @@ extension SplashAd: GADFullScreenContentDelegate {
   
   func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
     print("[AdMobManager] [SplashAd] Will display! (\(String(describing: adUnitID)))")
-    if let placementID {
-      LogEventManager.shared.log(event: .adShowSuccess(placementID))
+    if let placement {
+      LogEventManager.shared.log(event: .adShowSuccess(placement))
     }
     willPresent?()
     self.presentState = true
@@ -102,8 +102,8 @@ extension SplashAd: GADFullScreenContentDelegate {
   
   func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
     print("[AdMobManager] [SplashAd] Did hide! (\(String(describing: adUnitID)))")
-    if let placementID {
-      LogEventManager.shared.log(event: .adShowHide(placementID))
+    if let placement {
+      LogEventManager.shared.log(event: .adShowHide(placement))
     }
     didHide?()
     self.presentState = false

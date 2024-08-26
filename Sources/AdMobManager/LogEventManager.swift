@@ -16,7 +16,7 @@ class LogEventManager {
   func log(event: Event) {
 #if DEBUG
     print("[AdMobManager] [LogEventManager]", "[\(isValid(event.name, limit: 40))]", event.name, event.parameters ?? String())
-    if isValid(event.name, limit: 40) {
+    if !isValid(event.name, limit: 40) {
       showWarning()
     }
 #endif
@@ -33,7 +33,7 @@ class LogEventManager {
       guard let self else {
         return
       }
-      if isValid(ad.placementID, limit: maxCharacter) || isValid(ad.name, limit: maxCharacter) {
+      if !isValid(ad.placement, limit: maxCharacter) || !isValid(ad.name, limit: maxCharacter) {
         showWarning()
         return
       }

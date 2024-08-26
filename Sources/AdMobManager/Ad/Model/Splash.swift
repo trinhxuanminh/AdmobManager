@@ -8,7 +8,7 @@
 import Foundation
 
 struct Splash: AdConfigProtocol {
-  let placementID: String
+  let placement: String
   let status: Bool
   let name: String
   let id: String

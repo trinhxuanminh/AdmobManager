@@ -22,13 +22,13 @@ class FrequencyManager {
 }
 
 extension FrequencyManager {
-  func getCount(placementID: String) -> Int {
-    return countClicks[placementID] ?? 0
+  func getCount(placement: String) -> Int {
+    return countClicks[placement] ?? 0
   }
   
-  func increaseCount(placementID: String) {
-    let count = getCount(placementID: placementID)
-    countClicks[placementID] = count + 1
+  func increaseCount(placement: String) {
+    let count = getCount(placement: placement)
+    countClicks[placement] = count + 1
     save()
   }
 }
