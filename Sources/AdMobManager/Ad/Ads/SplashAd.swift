@@ -166,10 +166,10 @@ extension SplashAd {
         self.didLoadSuccess?()
         
         ad.paidEventHandler = { adValue in
-          if let name = self.name {
-            LogEventManager.shared.log(event: .adPayRevenue(name))
+          if let placement = self.placement {
+            LogEventManager.shared.log(event: .adPayRevenue(placement))
             if adValue.value == 0 {
-              LogEventManager.shared.log(event: .adNoRevenue(name))
+              LogEventManager.shared.log(event: .adNoRevenue(placement))
             }
           }
           let adRevenueParams: [AnyHashable: Any] = [

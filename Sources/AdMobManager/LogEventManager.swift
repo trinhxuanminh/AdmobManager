@@ -109,8 +109,6 @@ enum Event {
   case adLoadFail(String, Error?)
   case adLoadTryFail(String, Error?)
   case adLoadTimeout(String)
-  case adPayRevenue(String)
-  case adNoRevenue(String)
   case adShowCheck(String, UIViewController? = nil)
   case adShowRequest(String, UIViewController? = nil)
   case adShowReady(String, UIViewController? = nil)
@@ -120,6 +118,8 @@ enum Event {
   case adShowHide(String, UIViewController? = nil)
   case adShowClick(String, UIViewController? = nil)
   case adEarnReward(String, UIViewController? = nil)
+  case adPayRevenue(String, UIViewController? = nil)
+  case adNoRevenue(String, UIViewController? = nil)
   
   var name: String {
     switch self {
@@ -174,10 +174,6 @@ enum Event {
       return "AM_\(id)_Load_TryFail"
     case .adLoadTimeout(let id):
       return "AM_\(id)_Load_Timeout"
-    case .adPayRevenue(let id):
-      return "AM_\(id)_Pay_Revenue"
-    case .adNoRevenue(let id):
-      return "AM_\(id)_No_Revenue"
     case .adShowCheck(let id, _):
       return "AM_\(id)_Show_Check"
     case .adShowRequest(let id, _):
@@ -196,6 +192,10 @@ enum Event {
       return "AM_\(id)_Show_Click"
     case .adEarnReward(let id, _):
       return "AM_\(id)_Earn_Reward"
+    case .adPayRevenue(let id, _):
+      return "AM_\(id)_Pay_Revenue"
+    case .adNoRevenue(let id, _):
+      return "AM_\(id)_No_Revenue"
     }
   }
   
@@ -241,6 +241,16 @@ enum Event {
       }
       return ["screen": (viewController ?? AdMobManager.shared.rootViewController ?? topVC).getScreen()]
     case .adEarnReward(_, let viewController):
+      guard let topVC = UIApplication.topStackViewController() else {
+        return nil
+      }
+      return ["screen": (viewController ?? AdMobManager.shared.rootViewController ?? topVC).getScreen()]
+    case .adPayRevenue(_, let viewController):
+      guard let topVC = UIApplication.topStackViewController() else {
+        return nil
+      }
+      return ["screen": (viewController ?? AdMobManager.shared.rootViewController ?? topVC).getScreen()]
+    case .adNoRevenue(_, let viewController):
       guard let topVC = UIApplication.topStackViewController() else {
         return nil
       }
