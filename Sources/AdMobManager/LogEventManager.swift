@@ -111,15 +111,15 @@ enum Event {
   case adLoadTimeout(String)
   case adPayRevenue(String)
   case adNoRevenue(String)
-  case adShowCheck(String)
-  case adShowRequest(String)
-  case adShowReady(String)
-  case adShowNoReady(String)
-  case adShowSuccess(String)
-  case adShowFail(String, Error?)
-  case adShowHide(String)
-  case adShowClick(String)
-  case adEarnReward(String)
+  case adShowCheck(String, UIViewController? = nil)
+  case adShowRequest(String, UIViewController? = nil)
+  case adShowReady(String, UIViewController? = nil)
+  case adShowNoReady(String, UIViewController? = nil)
+  case adShowSuccess(String, UIViewController? = nil)
+  case adShowFail(String, Error?, UIViewController? = nil)
+  case adShowHide(String, UIViewController? = nil)
+  case adShowClick(String, UIViewController? = nil)
+  case adEarnReward(String, UIViewController? = nil)
   
   var name: String {
     switch self {
@@ -178,23 +178,23 @@ enum Event {
       return "AM_\(id)_Pay_Revenue"
     case .adNoRevenue(let id):
       return "AM_\(id)_No_Revenue"
-    case .adShowCheck(let id):
+    case .adShowCheck(let id, _):
       return "AM_\(id)_Show_Check"
-    case .adShowRequest(let id):
+    case .adShowRequest(let id, _):
       return "AM_\(id)_Show_Request"
-    case .adShowReady(let id):
+    case .adShowReady(let id, _):
       return "AM_\(id)_Show_Ready"
-    case .adShowNoReady(let id):
+    case .adShowNoReady(let id, _):
       return "AM_\(id)_Show_NoReady"
-    case .adShowSuccess(let id):
+    case .adShowSuccess(let id, _):
       return "AM_\(id)_Show_Success"
-    case .adShowFail(let id, _):
+    case .adShowFail(let id, _, _):
       return "AM_\(id)_Show_Fail"
-    case .adShowHide(let id):
+    case .adShowHide(let id, _):
       return "AM_\(id)_Show_Hide"
-    case .adShowClick(let id):
+    case .adShowClick(let id, _):
       return "AM_\(id)_Show_Click"
-    case .adEarnReward(let id):
+    case .adEarnReward(let id, _):
       return "AM_\(id)_Earn_Reward"
     }
   }
@@ -203,17 +203,54 @@ enum Event {
     switch self {
     case .adLoadSuccess(_, let time):
       return ["time": time]
-    case .adShowCheck, .adShowRequest, .adShowReady, .adShowNoReady, .adShowSuccess, .adShowHide, .adShowClick, .adEarnReward, .adPayRevenue, .adNoRevenue:
+    case .adLoadFail(_, let error), .adLoadTryFail(_, let error):
+      return ["error_code": (error as? NSError)?.code ?? "-1"]
+    case .adShowCheck(_, let viewController):
       guard let topVC = UIApplication.topStackViewController() else {
         return nil
       }
-      return ["screen": topVC.getScreen()]
-    case .adLoadFail(_, let error), .adLoadTryFail(_, let error), .adShowFail(_, let error):
+      return ["screen": (viewController ?? AdMobManager.shared.rootViewController ?? topVC).getScreen()]
+    case .adShowRequest(_, let viewController):
+      guard let topVC = UIApplication.topStackViewController() else {
+        return nil
+      }
+      return ["screen": (viewController ?? AdMobManager.shared.rootViewController ?? topVC).getScreen()]
+    case .adShowReady(_, let viewController):
+      guard let topVC = UIApplication.topStackViewController() else {
+        return nil
+      }
+      return ["screen": (viewController ?? AdMobManager.shared.rootViewController ?? topVC).getScreen()]
+    case .adShowNoReady(_, let viewController):
+      guard let topVC = UIApplication.topStackViewController() else {
+        return nil
+      }
+      return ["screen": (viewController ?? AdMobManager.shared.rootViewController ?? topVC).getScreen()]
+    case .adShowSuccess(_, let viewController):
+      guard let topVC = UIApplication.topStackViewController() else {
+        return nil
+      }
+      return ["screen": (viewController ?? AdMobManager.shared.rootViewController ?? topVC).getScreen()]
+    case .adShowHide(_, let viewController):
+      guard let topVC = UIApplication.topStackViewController() else {
+        return nil
+      }
+      return ["screen": (viewController ?? AdMobManager.shared.rootViewController ?? topVC).getScreen()]
+    case .adShowClick(_, let viewController):
+      guard let topVC = UIApplication.topStackViewController() else {
+        return nil
+      }
+      return ["screen": (viewController ?? AdMobManager.shared.rootViewController ?? topVC).getScreen()]
+    case .adEarnReward(_, let viewController):
+      guard let topVC = UIApplication.topStackViewController() else {
+        return nil
+      }
+      return ["screen": (viewController ?? AdMobManager.shared.rootViewController ?? topVC).getScreen()]
+    case .adShowFail(_, let error, let viewController):
       guard let topVC = UIApplication.topStackViewController() else {
         return nil
       }
       return [
-        "screen": topVC.getScreen(),
+        "screen": (viewController ?? AdMobManager.shared.rootViewController ?? topVC).getScreen(),
         "error_code": (error as? NSError)?.code ?? "-1"
       ]
     default:

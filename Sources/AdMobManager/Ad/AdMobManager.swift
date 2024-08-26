@@ -55,6 +55,7 @@ public class AdMobManager {
   private var didRequestConsent = false
   private var isDebug = false
   private var testDeviceIdentifiers = [String]()
+  private(set) weak var rootViewController: UIViewController?
   private var configValue: ((RemoteConfig) -> Void)?
   private var isPremium = false
   private var adMobConfig: AdMobConfig?
@@ -258,6 +259,7 @@ public class AdMobManager {
                    didEarnReward: Handler? = nil,
                    didHide: Handler?
   ) {
+    self.rootViewController = rootViewController
     LogEventManager.shared.log(event: .adShowCheck(placement))
     switch status(type: .reuse(type), placement: placement) {
     case false:

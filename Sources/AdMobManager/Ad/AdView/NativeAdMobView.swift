@@ -18,6 +18,7 @@ import GoogleMobileAds
 open class NativeAdMobView: UIView, AdMobViewProtocol, GADVideoControllerDelegate {
   private var nativeAdView: GADNativeAdView?
   private var nativeAd: NativeAd?
+  private weak var rootViewController: UIViewController?
   private var placement: String?
   private var didReceive: Handler?
   private var didError: Handler?
@@ -64,12 +65,13 @@ open class NativeAdMobView: UIView, AdMobViewProtocol, GADVideoControllerDelegat
                    didReceive: Handler?,
                    didError: Handler?
   ) {
+    self.rootViewController = rootViewController
     self.placement = placement
     self.nativeAdView = nativeAdView
     self.didReceive = didReceive
     self.didError = didError
     
-    LogEventManager.shared.log(event: .adShowCheck(placement))
+    LogEventManager.shared.log(event: .adShowCheck(placement, rootViewController))
     
     switch AdMobManager.shared.status(type: .onceUsed(.native), placement: placement) {
     case false:
@@ -103,7 +105,7 @@ open class NativeAdMobView: UIView, AdMobViewProtocol, GADVideoControllerDelegat
       return
     }
     
-    LogEventManager.shared.log(event: .adShowRequest(placement))
+    LogEventManager.shared.log(event: .adShowRequest(placement, rootViewController))
     switch nativeAd.getState() {
     case .receive:
       config(ad: nativeAd.getAd())
@@ -181,7 +183,7 @@ extension NativeAdMobView {
     nativeAdView.nativeAd = nativeAd
     
     if let placement {
-      LogEventManager.shared.log(event: .adShowSuccess(placement))
+      LogEventManager.shared.log(event: .adShowSuccess(placement, rootViewController))
     }
     
     didReceive?()
