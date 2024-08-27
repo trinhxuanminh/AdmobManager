@@ -135,9 +135,9 @@ extension BannerAdMobView: GADBannerViewDelegate {
         return
       }
       if let placement {
-        LogEventManager.shared.log(event: .adPayRevenue(placement))
+        LogEventManager.shared.log(event: .adPayRevenue(placement, rootViewController))
         if adValue.value == 0 {
-          LogEventManager.shared.log(event: .adNoRevenue(placement))
+          LogEventManager.shared.log(event: .adNoRevenue(placement, rootViewController))
         }
       }
       let adRevenueParams: [AnyHashable: Any] = [
