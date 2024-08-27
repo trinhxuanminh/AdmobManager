@@ -2,6 +2,7 @@
   "status": true,
   "splashs": [
     {
+      "placement": "Splash_1",
       "name": "Splash_1",
       "status": true,
       "id": "ca-app-pub-3940256099942544/4411468910",
@@ -10,14 +11,19 @@
       "timeout": 30
     }
   ],
-  "appOpen": {
-    "name": "App_Open",
-    "status": true,
-    "id": "ca-app-pub-3940256099942544/5575463023",
-    "description": ""
-  },
+  "appOpens": [
+    {
+      "placement": "App_Open",
+      "name": "App_Open_Test_Length_Max_Character",
+      "status": true,
+      "id": "ca-app-pub-3940256099942544/5575463023",
+      "isAuto": true,
+      "description": ""
+    }
+  ],
   "rewardeds": [
     {
+      "placement": "Rewarded",
       "name": "Rewarded",
       "status": true,
       "id": "ca-app-pub-3940256099942544/1712485313"
@@ -25,6 +31,7 @@
   ],
   "rewardedInterstitials": [
     {
+      "placement": "Rewarded_Interstitial",
       "name": "Rewarded_Interstitial",
       "status": true,
       "id": "ca-app-pub-3940256099942544/6978759866",
@@ -33,6 +40,7 @@
   ],
   "interstitials": [
     {
+      "placement": "Interstitial_1",
       "name": "Interstitial_1",
       "status": true,
       "id": "ca-app-pub-3940256099942544/4411468910",
@@ -42,6 +50,7 @@
       "frequency": 2
     },
     {
+      "placement": "Interstitial_2",
       "name": "Interstitial_2",
       "status": true,
       "id": "ca-app-pub-3940256099942544/4411468910",
@@ -51,17 +60,20 @@
   ],
   "banners": [
     {
+      "placement": "Banner_1",
       "name": "Banner_1",
       "status": true,
       "id": "ca-app-pub-3940256099942544/2934735716"
     },
     {
+      "placement": "Banner_2",
       "name": "Banner_2",
       "status": true,
       "id": "ca-app-pub-3940256099942544/2934735716",
       "anchored": "top"
     },
     {
+      "placement": "Banner_3",
       "name": "Banner_3",
       "status": true,
       "id": "ca-app-pub-3940256099942544/2934735716",
@@ -71,6 +83,7 @@
   ],
   "natives": [
     {
+      "placement": "Native",
       "name": "Native",
       "status": true,
       "id": "ca-app-pub-3940256099942544/3986624511",
