@@ -192,7 +192,6 @@ extension BannerAdMobView {
         extras.additionalParameters = ["collapsible": anchored.rawValue]
         request.register(extras)
       }
-      
       self.bannerAdView?.load(request)
     }
   }
