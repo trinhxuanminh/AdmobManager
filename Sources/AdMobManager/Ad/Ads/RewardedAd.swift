@@ -8,6 +8,7 @@
 import UIKit
 import GoogleMobileAds
 import AppsFlyerAdRevenue
+import AppsFlyerLib
 
 class RewardedAd: NSObject, AdProtocol {
   private var rewardedAd: GADRewardedAd?
@@ -201,6 +202,12 @@ extension RewardedAd {
             eventRevenue: adValue.value,
             revenueCurrency: adValue.currencyCode,
             additionalParameters: adRevenueParams)
+          
+          AppsFlyerLib.shared().logEvent("ad_impression",
+                                         withValues: [
+                                          AFEventParamRevenue: adValue.value,
+                                          AFEventParamCurrency: adValue.currencyCode
+                                         ])
         }
       }
     }

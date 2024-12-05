@@ -8,6 +8,7 @@
 import UIKit
 import GoogleMobileAds
 import AppsFlyerAdRevenue
+import AppsFlyerLib
 
 class AppOpenAd: NSObject, AdProtocol {
   private var appOpenAd: GADAppOpenAd?
@@ -188,6 +189,12 @@ extension AppOpenAd {
             eventRevenue: adValue.value,
             revenueCurrency: adValue.currencyCode,
             additionalParameters: adRevenueParams)
+          
+          AppsFlyerLib.shared().logEvent("ad_impression",
+                                         withValues: [
+                                          AFEventParamRevenue: adValue.value,
+                                          AFEventParamCurrency: adValue.currencyCode
+                                         ])
         }
       }
     }

@@ -8,6 +8,7 @@
 import UIKit
 import GoogleMobileAds
 import AppsFlyerAdRevenue
+import AppsFlyerLib
 
 class InterstitialAd: NSObject, AdProtocol {
   private var interstitialAd: GADInterstitialAd?
@@ -195,6 +196,12 @@ extension InterstitialAd {
             eventRevenue: adValue.value,
             revenueCurrency: adValue.currencyCode,
             additionalParameters: adRevenueParams)
+          
+          AppsFlyerLib.shared().logEvent("ad_impression",
+                                         withValues: [
+                                          AFEventParamRevenue: adValue.value,
+                                          AFEventParamCurrency: adValue.currencyCode
+                                         ])
         }
       }
     }

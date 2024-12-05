@@ -8,6 +8,7 @@
 import UIKit
 import GoogleMobileAds
 import AppsFlyerAdRevenue
+import AppsFlyerLib
 
 class RewardedInterstitialAd: NSObject, AdProtocol {
   private var rewardedInterstitialAd: GADRewardedInterstitialAd?
@@ -201,6 +202,12 @@ extension RewardedInterstitialAd {
             eventRevenue: adValue.value,
             revenueCurrency: adValue.currencyCode,
             additionalParameters: adRevenueParams)
+          
+          AppsFlyerLib.shared().logEvent("ad_impression",
+                                         withValues: [
+                                          AFEventParamRevenue: adValue.value,
+                                          AFEventParamCurrency: adValue.currencyCode
+                                         ])
         }
       }
     }

@@ -8,6 +8,7 @@
 import UIKit
 import GoogleMobileAds
 import AppsFlyerAdRevenue
+import AppsFlyerLib
 
 class SplashAd: NSObject, AdProtocol {
   private var splashAd: GADInterstitialAd?
@@ -184,6 +185,12 @@ extension SplashAd {
             eventRevenue: adValue.value,
             revenueCurrency: adValue.currencyCode,
             additionalParameters: adRevenueParams)
+          
+          AppsFlyerLib.shared().logEvent("ad_impression",
+                                         withValues: [
+                                          AFEventParamRevenue: adValue.value,
+                                          AFEventParamCurrency: adValue.currencyCode
+                                         ])
         }
       }
     }

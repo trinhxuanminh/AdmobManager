@@ -8,6 +8,7 @@
 import UIKit
 import GoogleMobileAds
 import AppsFlyerAdRevenue
+import AppsFlyerLib
 
 class NativeAd: NSObject {
   private var nativeAd: GADNativeAd?
@@ -101,6 +102,12 @@ extension NativeAd: GADNativeAdLoaderDelegate {
         eventRevenue: adValue.value,
         revenueCurrency: adValue.currencyCode,
         additionalParameters: adRevenueParams)
+      
+      AppsFlyerLib.shared().logEvent("ad_impression",
+                                     withValues: [
+                                      AFEventParamRevenue: adValue.value,
+                                      AFEventParamCurrency: adValue.currencyCode
+                                     ])
     }
   }
 }
