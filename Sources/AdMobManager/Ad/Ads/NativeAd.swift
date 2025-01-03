@@ -51,6 +51,18 @@ class NativeAd: NSObject {
     self.didReceive = didReceive
     self.didError = didError
   }
+  
+  func isTestMode() -> Bool? {
+    guard
+      let nativeAd,
+      let lineItems = nativeAd.responseInfo.dictionaryRepresentation["Mediation line items"] as? [Any],
+      let dictionary = lineItems.first as? [String: Any],
+      let adSourceInstanceName = dictionary["Ad Source Instance Name"] as? String
+    else {
+      return nil
+    }
+    return adSourceInstanceName.lowercased().contains("test")
+  }
 }
 
 extension NativeAd: GADNativeAdLoaderDelegate {

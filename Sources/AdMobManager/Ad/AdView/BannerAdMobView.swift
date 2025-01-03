@@ -107,6 +107,18 @@ open class BannerAdMobView: UIView {
     }
     load()
   }
+  
+  public func isTestMode() -> Bool? {
+    guard
+      let bannerAdView,
+      let lineItems = bannerAdView.responseInfo?.dictionaryRepresentation["Mediation line items"] as? [Any],
+      let dictionary = lineItems.first as? [String: Any],
+      let adSourceInstanceName = dictionary["Ad Source Instance Name"] as? String
+    else {
+      return nil
+    }
+    return adSourceInstanceName.lowercased().contains("test")
+  }
 }
 
 extension BannerAdMobView: GADBannerViewDelegate {

@@ -127,6 +127,10 @@ open class NativeAdMobView: UIView, AdMobViewProtocol, GADVideoControllerDelegat
       return
     }
   }
+  
+  public func isTestMode() -> Bool? {
+    return nativeAd?.isTestMode()
+  }
 }
 
 extension NativeAdMobView {

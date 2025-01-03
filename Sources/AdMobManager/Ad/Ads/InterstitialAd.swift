@@ -73,11 +73,15 @@ class InterstitialAd: NSObject, AdProtocol {
   }
   
   func isTestMode() -> Bool? {
-//    guard let splashAd else {
-//      return nil
-//    }
-//    print(splashAd)
-    return false
+    guard
+      let interstitialAd,
+      let lineItems = interstitialAd.responseInfo.dictionaryRepresentation["Mediation line items"] as? [Any],
+      let dictionary = lineItems.first as? [String: Any],
+      let adSourceInstanceName = dictionary["Ad Source Instance Name"] as? String
+    else {
+      return nil
+    }
+    return adSourceInstanceName.lowercased().contains("test")
   }
 }
 
