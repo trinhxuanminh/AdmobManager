@@ -83,11 +83,8 @@ class SplashAd: NSObject, AdProtocol {
     guard let splashAd else {
       return nil
     }
-    print("[AdMobManager] [SplashAd] adNetworkInfoArray", splashAd.responseInfo.adNetworkInfoArray)
-    print("[AdMobManager] [SplashAd] description", splashAd.responseInfo.description)
-    print("[AdMobManager] [SplashAd] debugDescription", splashAd.responseInfo.debugDescription)
     print("[AdMobManager] [SplashAd] dictionaryRepresentation", splashAd.responseInfo.dictionaryRepresentation)
-    print("[AdMobManager] [SplashAd] extrasDictionary", splashAd.responseInfo.extrasDictionary)
+    print("[AdMobManager] [SplashAd] dictionaryRepresentation - Mediation line items", splashAd.responseInfo.dictionaryRepresentation["Mediation line items"])
     return false
   }
 }
