@@ -80,17 +80,15 @@ class SplashAd: NSObject, AdProtocol {
   }
   
   func isTestMode() -> Bool? {
-    guard let splashAd else {
-      return nil
-    }
     guard 
+      let splashAd,
       let lineItems = splashAd.responseInfo.dictionaryRepresentation["Mediation line items"] as? [Any],
-      let dictionary = lineItems.first as? [String: Any]
+      let dictionary = lineItems.first as? [String: Any],
+      let adSourceInstanceName = dictionary["Ad Source Instance Name"] as? String
     else {
       return nil
     }
-    print("[AdMobManager] [SplashAd] dictionaryRepresentation - Mediation line items:", dictionary["Ad Source Instance Name"])
-    return false
+    return adSourceInstanceName.lowercased().contains("test")
   }
 }
 
