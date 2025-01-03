@@ -83,7 +83,7 @@ class SplashAd: NSObject, AdProtocol {
     guard let splashAd else {
       return nil
     }
-    print(splashAd)
+    print(splashAd.responseInfo)
     return false
   }
 }
