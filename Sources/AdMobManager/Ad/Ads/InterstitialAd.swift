@@ -71,6 +71,14 @@ class InterstitialAd: NSObject, AdProtocol {
     self.didEarnReward = didEarnReward
     interstitialAd?.present(fromRootViewController: rootViewController)
   }
+  
+  func isTestMode() -> Bool? {
+//    guard let splashAd else {
+//      return nil
+//    }
+//    print(splashAd)
+    return false
+  }
 }
 
 extension InterstitialAd: GADFullScreenContentDelegate {

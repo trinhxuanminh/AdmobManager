@@ -77,6 +77,14 @@ class RewardedInterstitialAd: NSObject, AdProtocol {
       self.didEarnReward?()
     })
   }
+  
+  func isTestMode() -> Bool? {
+//    guard let splashAd else {
+//      return nil
+//    }
+//    print(splashAd)
+    return false
+  }
 }
 
 extension RewardedInterstitialAd: GADFullScreenContentDelegate {

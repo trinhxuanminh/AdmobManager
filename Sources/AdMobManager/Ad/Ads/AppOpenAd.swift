@@ -72,6 +72,14 @@ class AppOpenAd: NSObject, AdProtocol {
     self.didEarnReward = didEarnReward
     appOpenAd?.present(fromRootViewController: rootViewController)
   }
+  
+  func isTestMode() -> Bool? {
+//    guard let splashAd else {
+//      return nil
+//    }
+//    print(splashAd)
+    return false
+  }
 }
 
 extension AppOpenAd: GADFullScreenContentDelegate {

@@ -18,9 +18,9 @@ protocol AdProtocol {
             willPresent: Handler?,
             didEarnReward: Handler?,
             didHide: Handler?)
+  func isTestMode() -> Bool?
 }
 
 extension AdProtocol {
   func config(timeout: Double) {}
-  func isTestMode() -> Bool? { return false }
 }
