@@ -53,6 +53,8 @@ class NativeAd: NSObject {
   }
   
   func isTestMode() -> Bool? {
+    print(nativeAd?.responseInfo)
+    print(nativeAd?.responseInfo.dictionaryRepresentation)
     guard
       let nativeAd,
       let lineItems = nativeAd.responseInfo.dictionaryRepresentation["Mediation line items"] as? [Any],

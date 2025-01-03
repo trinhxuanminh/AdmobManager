@@ -321,6 +321,30 @@ public class AdMobManager {
     return ad.isTestMode()
   }
   
+  public func isTestMode(nativePlacement: String) -> Bool? {
+    switch status(type: .onceUsed(.native), placement: nativePlacement) {
+    case false:
+      print("[AdMobManager] Ads are not allowed to show! (\(nativePlacement))")
+      return nil
+    case true:
+      break
+    default:
+      return nil
+    }
+    guard let native = getAd(type: .onceUsed(.native), placement: nativePlacement) as? Native else {
+      print("[AdMobManager] Ads don't exist! (\(nativePlacement))")
+      return nil
+    }
+    guard native.isPreload == true else {
+      print("[AdMobManager] Ads are not preloaded! (\(nativePlacement))")
+      return nil
+    }
+    guard let nativeAd = listNativeAd[nativePlacement] else {
+      return nil
+    }
+    return nativeAd.isTestMode()
+  }
+  
   public func requestConsentUpdate() {
     guard let topVC = UIApplication.topStackViewController() else {
       return
