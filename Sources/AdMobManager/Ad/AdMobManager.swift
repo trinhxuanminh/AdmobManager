@@ -300,6 +300,27 @@ public class AdMobManager {
             didHide: didHide)
   }
   
+  public func isTestMode(type: Reuse, placement: String) -> Bool? {
+    switch status(type: .reuse(type), placement: placement) {
+    case false:
+      print("[AdMobManager] Ads are not allowed to show! (\(placement))")
+      return nil
+    case true:
+      break
+    default:
+      return nil
+    }
+    guard let adConfig = getAd(type: .reuse(type), placement: placement) as? AdConfigProtocol else {
+      print("[AdMobManager] Ads don't exist! (\(placement))")
+      return nil
+    }
+    guard let ad = listReuseAd[adConfig.name] else {
+      print("[AdMobManager] Ads do not exist! (\(placement))")
+      return nil
+    }
+    return ad.isTestMode()
+  }
+  
   public func requestConsentUpdate() {
     guard let topVC = UIApplication.topStackViewController() else {
       return

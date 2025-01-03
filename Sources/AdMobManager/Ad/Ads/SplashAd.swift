@@ -78,6 +78,14 @@ class SplashAd: NSObject, AdProtocol {
     self.didEarnReward = didEarnReward
     splashAd?.present(fromRootViewController: rootViewController)
   }
+  
+  func isTestMode() -> Bool? {
+    guard let splashAd else {
+      return nil
+    }
+    print(splashAd)
+    return false
+  }
 }
 
 extension SplashAd: GADFullScreenContentDelegate {

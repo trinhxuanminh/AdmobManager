@@ -22,4 +22,5 @@ protocol AdProtocol {
 
 extension AdProtocol {
   func config(timeout: Double) {}
+  func isTestMode() -> Bool? { return false }
 }
