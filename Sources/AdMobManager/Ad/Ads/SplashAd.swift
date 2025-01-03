@@ -83,10 +83,13 @@ class SplashAd: NSObject, AdProtocol {
     guard let splashAd else {
       return nil
     }
-    guard let lineItems = splashAd.responseInfo.dictionaryRepresentation["Mediation line items"] as? [Any] else {
+    guard 
+      let lineItems = splashAd.responseInfo.dictionaryRepresentation["Mediation line items"] as? [Any],
+      let dictionary = lineItems.first as? [String: Any]
+    else {
       return nil
     }
-    print("[AdMobManager] [SplashAd] dictionaryRepresentation - Mediation line items", lineItems[2])
+    print("[AdMobManager] [SplashAd] dictionaryRepresentation - Mediation line items:", dictionary["Ad Source Instance Name"])
     return false
   }
 }
