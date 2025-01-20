@@ -58,23 +58,23 @@ class InterstitialAd: NSObject, AdProtocol {
             didHide: Handler?
   ) {
     guard !isShowing else {
-      print("[AdMobManager] [InterstitialAd] Display failure - ads are being displayed! (\(String(describing: adUnitID)))")
+      print("[AdMobManager] [InterstitialAd] Display failure - ads are being displayed! (\(placement))")
       didFail?()
       return
     }
     LogEventManager.shared.log(event: .adShowRequest(placement))
     guard isReady() else {
-      print("[AdMobManager] [InterstitialAd] Display failure - not ready to show! (\(String(describing: adUnitID)))")
+      print("[AdMobManager] [InterstitialAd] Display failure - not ready to show! (\(placement))")
       didFail?()
       return
     }
     guard wasLoadTimeGreaterThanInterval() else {
-      print("[AdMobManager] [AppOpenAd] Display failure - Load time is less than interval! (\(String(describing: adUnitID)))")
+      print("[AdMobManager] [AppOpenAd] Display failure - Load time is less than interval! (\(placement))")
       didFail?()
       return
     }
     LogEventManager.shared.log(event: .adShowReady(placement))
-    print("[AdMobManager] [AppOpenAd] Requested to show! (\(String(describing: adUnitID)))")
+    print("[AdMobManager] [AppOpenAd] Requested to show! (\(placement))")
     self.placement = placement
     self.didShowFail = didFail
     self.willPresent = willPresent
@@ -100,8 +100,8 @@ extension InterstitialAd: GADFullScreenContentDelegate {
   func ad(_ ad: GADFullScreenPresentingAd,
           didFailToPresentFullScreenContentWithError error: Error
   ) {
-    print("[AdMobManager] [InterstitialAd] Did fail to show content! (\(String(describing: adUnitID)))")
     if let placement {
+      print("[AdMobManager] [InterstitialAd] Did fail to show content! (\(placement))")
       LogEventManager.shared.log(event: .adShowFail(placement, error))
     }
     didShowFail?()
@@ -110,8 +110,8 @@ extension InterstitialAd: GADFullScreenContentDelegate {
   }
   
   func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
-    print("[AdMobManager] [InterstitialAd] Will display! (\(String(describing: adUnitID)))")
     if let placement {
+      print("[AdMobManager] [InterstitialAd] Will display! (\(placement))")
       LogEventManager.shared.log(event: .adShowSuccess(placement))
     }
     willPresent?()
@@ -119,8 +119,8 @@ extension InterstitialAd: GADFullScreenContentDelegate {
   }
   
   func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
-    print("[AdMobManager] [InterstitialAd] Did hide! (\(String(describing: adUnitID)))")
     if let placement {
+      print("[AdMobManager] [InterstitialAd] Did hide! (\(placement))")
       LogEventManager.shared.log(event: .adShowHide(placement))
     }
     didHide?()
@@ -169,8 +169,9 @@ extension InterstitialAd {
       }
       
       self.isLoading = true
-      print("[AdMobManager] [InterstitialAd] Start load! (\(String(describing: adUnitID)))")
+      
       if let name {
+        print("[AdMobManager] [InterstitialAd] Start load! (\(name))")
         LogEventManager.shared.log(event: .adLoadRequest(name))
         TimeManager.shared.start(event: .adLoad(.reuse(.interstitial), name))
       }
@@ -193,16 +194,16 @@ extension InterstitialAd {
             self.didLoadFail?()
             return
           }
+          let delaySec = 5.0
           if let name {
+            print("[AdMobManager] [InterstitialAd] Did fail to load. Reload after \(delaySec)s! (\(name)) - (\(String(describing: error)))")
             LogEventManager.shared.log(event: .adLoadFail(name, error))
           }
-          let delaySec = 5.0
-          print("[AdMobManager] [InterstitialAd] Did fail to load. Reload after \(delaySec)s! (\(String(describing: adUnitID))) - (\(String(describing: error)))")
           DispatchQueue.global().asyncAfter(deadline: .now() + delaySec, execute: self.load)
           return
         }
-        print("[AdMobManager] [InterstitialAd] Did load! (\(String(describing: adUnitID)))")
         if let name {
+          print("[AdMobManager] [InterstitialAd] Did load! (\(name))")
           let time = TimeManager.shared.end(event: .adLoad(.reuse(.interstitial), name))
           LogEventManager.shared.log(event: .adLoadSuccess(name, time))
         }

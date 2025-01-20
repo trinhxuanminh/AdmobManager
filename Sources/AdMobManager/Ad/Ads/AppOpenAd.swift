@@ -58,24 +58,24 @@ class AppOpenAd: NSObject, AdProtocol {
             didHide: Handler?
   ) {
     guard !isShowing else {
-      print("[AdMobManager] [AppOpenAd] Display failure - ads are being displayed! (\(String(describing: adUnitID)))")
+      print("[AdMobManager] [AppOpenAd] Display failure - ads are being displayed! (\(placement)))")
       didFail?()
       return
     }
     LogEventManager.shared.log(event: .adShowRequest(placement))
     guard isReady() else {
-      print("[AdMobManager] [AppOpenAd] Display failure - not ready to show! (\(String(describing: adUnitID)))")
+      print("[AdMobManager] [AppOpenAd] Display failure - not ready to show! (\(placement))")
       LogEventManager.shared.log(event: .adShowNoReady(placement))
       didFail?()
       return
     }
     guard wasLoadTimeGreaterThanInterval() else {
-      print("[AdMobManager] [AppOpenAd] Display failure - Load time is less than interval! (\(String(describing: adUnitID)))")
+      print("[AdMobManager] [AppOpenAd] Display failure - Load time is less than interval! (\(placement))")
       didFail?()
       return
     }
     LogEventManager.shared.log(event: .adShowReady(placement))
-    print("[AdMobManager] [AppOpenAd] Requested to show! (\(String(describing: adUnitID)))")
+    print("[AdMobManager] [AppOpenAd] Requested to show! (\(placement))")
     self.placement = placement
     self.didShowFail = didFail
     self.willPresent = willPresent
@@ -101,8 +101,8 @@ extension AppOpenAd: GADFullScreenContentDelegate {
   func ad(_ ad: GADFullScreenPresentingAd,
           didFailToPresentFullScreenContentWithError error: Error
   ) {
-    print("[AdMobManager] [AppOpenAd] Did fail to show content! (\(String(describing: adUnitID)))")
     if let placement {
+      print("[AdMobManager] [AppOpenAd] Did fail to show content! (\(placement))")
       LogEventManager.shared.log(event: .adShowFail(placement, error))
     }
     didShowFail?()
@@ -111,8 +111,8 @@ extension AppOpenAd: GADFullScreenContentDelegate {
   }
   
   func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
-    print("[AdMobManager] [AppOpenAd] Will display! (\(String(describing: adUnitID)))")
     if let placement {
+      print("[AdMobManager] [AppOpenAd] Will display! (\(placement))")
       LogEventManager.shared.log(event: .adShowSuccess(placement))
     }
     willPresent?()
@@ -120,8 +120,8 @@ extension AppOpenAd: GADFullScreenContentDelegate {
   }
   
   func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
-    print("[AdMobManager] [AppOpenAd] Did hide! (\(String(describing: adUnitID)))")
     if let placement {
+      print("[AdMobManager] [AppOpenAd] Did hide! (\(placement))")
       LogEventManager.shared.log(event: .adShowHide(placement))
     }
     didHide?()
@@ -170,9 +170,9 @@ extension AppOpenAd {
       }
       
       self.isLoading = true
-      print("[AdMobManager] [AppOpenAd] Start load! (\(String(describing: adUnitID)))")
       
       if let name {
+        print("[AdMobManager] [AppOpenAd] Start load! (\(name))")
         LogEventManager.shared.log(event: .adLoadRequest(name))
         TimeManager.shared.start(event: .adLoad(.reuse(.appOpen), name))
       }
@@ -188,14 +188,14 @@ extension AppOpenAd {
         guard error == nil, let ad = ad else {
           self.retryAttempt += 1
           self.didLoadFail?()
-          print("[AdMobManager] [AppOpenAd] Load fail (\(String(describing: adUnitID))) - \(String(describing: error))!")
           if let name {
+            print("[AdMobManager] [AppOpenAd] Load fail (\(name)) - \(String(describing: error))!")
             LogEventManager.shared.log(event: .adLoadFail(name, error))
           }
           return
         }
-        print("[AdMobManager] [AppOpenAd] Did load! (\(String(describing: adUnitID)))")
         if let name {
+          print("[AdMobManager] [AppOpenAd] Did load! (\(name))")
           let time = TimeManager.shared.end(event: .adLoad(.reuse(.appOpen), name))
           LogEventManager.shared.log(event: .adLoadSuccess(name, time))
         }

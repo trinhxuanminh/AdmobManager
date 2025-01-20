@@ -86,7 +86,7 @@ open class BannerAdMobView: UIView {
     }
     switch AdMobManager.shared.status(type: .onceUsed(.banner), placement: placement) {
     case false:
-      print("[AdMobManager] [BannerAd] Ads are not allowed to show! (\(String(describing: adUnitID)))")
+      print("[AdMobManager] [BannerAd] Ads are not allowed to show! (\(placement))")
       errored()
       return
     case true:
@@ -125,8 +125,8 @@ extension BannerAdMobView: GADBannerViewDelegate {
   public func bannerView(_ bannerView: GADBannerView,
                          didFailToReceiveAdWithError error: Error
   ) {
-    print("[AdMobManager] [BannerAd] Load fail (\(String(describing: adUnitID))) - \(String(describing: error))!")
     if let placement {
+      print("[AdMobManager] [BannerAd] Load fail (\(placement)) - \(String(describing: error))!")
       LogEventManager.shared.log(event: .adLoadFail(placement, error))
     }
     self.state = .error
@@ -134,8 +134,8 @@ extension BannerAdMobView: GADBannerViewDelegate {
   }
   
   public func bannerViewDidReceiveAd(_ bannerView: GADBannerView) {
-    print("[AdMobManager] [BannerAd] Did load! (\(String(describing: adUnitID)))")
     if let placement {
+      print("[AdMobManager] [BannerAd] Did load! (\(placement))")
       let time = TimeManager.shared.end(event: .adLoad(.onceUsed(.banner), placement))
       LogEventManager.shared.log(event: .adLoadSuccess(placement, time))
     }
@@ -190,7 +190,9 @@ extension BannerAdMobView {
       return
     }
     
-    print("[AdMobManager] [BannerAd] Start load! (\(String(describing: adUnitID)))")
+    if let placement {
+      print("[AdMobManager] [BannerAd] Start load! (\(placement))")
+    }
     self.state = .loading
     DispatchQueue.main.async { [weak self] in
       guard let self = self else {

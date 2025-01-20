@@ -52,18 +52,18 @@ class RewardedAd: NSObject, AdProtocol {
             didHide: Handler?
   ) {
     guard !isShowing else {
-      print("[AdMobManager] [RewardAd] Display failure - ads are being displayed! (\(String(describing: adUnitID)))")
+      print("[AdMobManager] [RewardAd] Display failure - ads are being displayed! (\(placement))")
       didFail?()
       return
     }
     LogEventManager.shared.log(event: .adShowRequest(placement))
     guard isReady() else {
-      print("[AdMobManager] [RewardAd] Display failure - not ready to show! (\(String(describing: adUnitID)))")
+      print("[AdMobManager] [RewardAd] Display failure - not ready to show! (\(placement))")
       didFail?()
       return
     }
     LogEventManager.shared.log(event: .adShowReady(placement))
-    print("[AdMobManager] [RewardAd] Requested to show! (\(String(describing: adUnitID)))")
+    print("[AdMobManager] [RewardAd] Requested to show! (\(placement))")
     self.placement = placement
     self.didShowFail = didFail
     self.willPresent = willPresent
@@ -95,8 +95,8 @@ extension RewardedAd: GADFullScreenContentDelegate {
   func ad(_ ad: GADFullScreenPresentingAd,
           didFailToPresentFullScreenContentWithError error: Error
   ) {
-    print("[AdMobManager] [RewardAd] Did fail to show content! (\(String(describing: adUnitID)))")
     if let placement {
+      print("[AdMobManager] [RewardAd] Did fail to show content! (\(placement))")
       LogEventManager.shared.log(event: .adShowFail(placement, error))
     }
     didShowFail?()
@@ -105,8 +105,8 @@ extension RewardedAd: GADFullScreenContentDelegate {
   }
   
   func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
-    print("[AdMobManager] [RewardAd] Will display! (\(String(describing: adUnitID)))")
     if let placement {
+      print("[AdMobManager] [RewardAd] Will display! (\(placement))")
       LogEventManager.shared.log(event: .adShowSuccess(placement))
     }
     willPresent?()
@@ -114,8 +114,8 @@ extension RewardedAd: GADFullScreenContentDelegate {
   }
   
   func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
-    print("[AdMobManager] [RewardAd] Did hide! (\(String(describing: adUnitID)))")
     if let placement {
+      print("[AdMobManager] [RewardAd] Did hide! (\(placement))")
       LogEventManager.shared.log(event: .adShowHide(placement))
     }
     didHide?()
@@ -153,8 +153,8 @@ extension RewardedAd {
       }
       
       self.isLoading = true
-      print("[AdMobManager] [RewardAd] Start load! (\(String(describing: adUnitID)))")
       if let name {
+        print("[AdMobManager] [RewardAd] Start load! (\(name))")
         LogEventManager.shared.log(event: .adLoadRequest(name))
         TimeManager.shared.start(event: .adLoad(.reuse(.rewarded), name))
       }
@@ -177,16 +177,16 @@ extension RewardedAd {
             self.didLoadFail?()
             return
           }
+          let delaySec = 5.0
           if let name {
+            print("[AdMobManager] [RewardAd] Did fail to load. Reload after \(delaySec)s! (\(name)) - (\(String(describing: error)))")
             LogEventManager.shared.log(event: .adLoadFail(name, error))
           }
-          let delaySec = 5.0
-          print("[AdMobManager] [RewardAd] Did fail to load. Reload after \(delaySec)s! (\(String(describing: adUnitID))) - (\(String(describing: error)))")
           DispatchQueue.global().asyncAfter(deadline: .now() + delaySec, execute: self.load)
           return
         }
-        print("[AdMobManager] [RewardAd] Did load! (\(String(describing: adUnitID)))")
         if let name {
+          print("[AdMobManager] [RewardAd] Did load! (\(name))")
           let time = TimeManager.shared.end(event: .adLoad(.reuse(.rewarded), name))
           LogEventManager.shared.log(event: .adLoadSuccess(name, time))
         }
