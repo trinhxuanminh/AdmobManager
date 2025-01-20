@@ -15,7 +15,7 @@ class InterstitialAd: NSObject, AdProtocol {
   private var adUnitID: String?
   private var placement: String?
   private var name: String?
-  private var presentState = false
+  private var isShowing = false
   private var isLoading = false
   private var retryAttempt = 0
   private var didLoadFail: Handler?
@@ -24,6 +24,8 @@ class InterstitialAd: NSObject, AdProtocol {
   private var willPresent: Handler?
   private var didEarnReward: Handler?
   private var didHide: Handler?
+  private var loadTime: Date?
+  private var timeInterval: TimeInterval?
   
   func config(didFail: Handler?, didSuccess: Handler?) {
     self.didLoadFail = didFail
@@ -36,8 +38,12 @@ class InterstitialAd: NSObject, AdProtocol {
     load()
   }
   
+  func config(timeInterval: Double) {
+    self.timeInterval = timeInterval
+  }
+  
   func isPresent() -> Bool {
-    return presentState
+    return isShowing
   }
   
   func isExist() -> Bool {
@@ -51,7 +57,7 @@ class InterstitialAd: NSObject, AdProtocol {
             didEarnReward: Handler?,
             didHide: Handler?
   ) {
-    guard !presentState else {
+    guard !isShowing else {
       print("[AdMobManager] [InterstitialAd] Display failure - ads are being displayed! (\(String(describing: adUnitID)))")
       didFail?()
       return
@@ -104,7 +110,7 @@ extension InterstitialAd: GADFullScreenContentDelegate {
       LogEventManager.shared.log(event: .adShowSuccess(placement))
     }
     willPresent?()
-    self.presentState = true
+    self.isShowing = true
   }
   
   func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
@@ -114,7 +120,8 @@ extension InterstitialAd: GADFullScreenContentDelegate {
     }
     didHide?()
     self.interstitialAd = nil
-    self.presentState = false
+    self.isShowing = false
+    self.loadTime = Date()
     load()
   }
 }
@@ -124,7 +131,17 @@ extension InterstitialAd {
     if !isExist(), retryAttempt >= 2 {
       load()
     }
-    return isExist()
+    return isExist() && wasLoadTimeGreaterThanInterval()
+  }
+  
+  private func wasLoadTimeGreaterThanInterval() -> Bool {
+    guard
+      let loadTime = loadTime,
+      let timeInterval = timeInterval
+    else {
+      return true
+    }
+    return Date().timeIntervalSince(loadTime) >= timeInterval
   }
   
   private func load() {

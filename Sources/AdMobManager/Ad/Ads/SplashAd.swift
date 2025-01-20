@@ -15,7 +15,7 @@ class SplashAd: NSObject, AdProtocol {
   private var adUnitID: String?
   private var placement: String?
   private var name: String?
-  private var presentState = false
+  private var isShowing = false
   private var isLoading = false
   private var timeout: Double?
   private var time = 0.0
@@ -44,7 +44,7 @@ class SplashAd: NSObject, AdProtocol {
   }
   
   func isPresent() -> Bool {
-    return presentState
+    return isShowing
   }
   
   func isExist() -> Bool {
@@ -58,7 +58,7 @@ class SplashAd: NSObject, AdProtocol {
             didEarnReward: Handler?,
             didHide: Handler?
   ) {
-    guard !presentState else {
+    guard !isShowing else {
       print("[AdMobManager] [SplashAd] Display failure - ads are being displayed! (\(String(describing: adUnitID)))")
       didFail?()
       return
@@ -110,7 +110,7 @@ extension SplashAd: GADFullScreenContentDelegate {
       LogEventManager.shared.log(event: .adShowSuccess(placement))
     }
     willPresent?()
-    self.presentState = true
+    self.isShowing = true
   }
   
   func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
@@ -119,7 +119,7 @@ extension SplashAd: GADFullScreenContentDelegate {
       LogEventManager.shared.log(event: .adShowHide(placement))
     }
     didHide?()
-    self.presentState = false
+    self.isShowing = false
     self.splashAd = nil
   }
 }

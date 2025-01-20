@@ -14,4 +14,5 @@ struct Rewarded: AdConfigProtocol {
   let id: String
   let isAuto: Bool?
   let description: String?
+  let params: Params?
 }

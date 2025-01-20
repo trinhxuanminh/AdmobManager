@@ -15,4 +15,5 @@ struct Banner: AdConfigProtocol {
   let isAuto: Bool?
   let description: String?
   let anchored: String?
+  let params: Params?
 }

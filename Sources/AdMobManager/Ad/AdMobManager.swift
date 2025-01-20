@@ -174,9 +174,27 @@ public class AdMobManager {
       splashAd.config(timeout: splash.timeout)
       adProtocol = splashAd
     case .appOpen:
-      adProtocol = AppOpenAd()
+      guard let appOpen = adConfig as? AppOpen else {
+        print("[AdMobManager] Format conversion error! (\(placement))")
+        fail?()
+        return
+      }
+      let appOpenAd = AppOpenAd()
+      if let timeInterval = appOpen.timeInterval {
+        appOpenAd.config(timeInterval: timeInterval)
+      }
+      adProtocol = appOpenAd
     case .interstitial:
-      adProtocol = InterstitialAd()
+      guard let interstitial = adConfig as? Interstitial else {
+        print("[AdMobManager] Format conversion error! (\(placement))")
+        fail?()
+        return
+      }
+      let interstitialAd = InterstitialAd()
+      if let timeInterval = interstitial.timeInterval {
+        interstitialAd.config(timeInterval: timeInterval)
+      }
+      adProtocol = interstitialAd
     case .rewarded:
       adProtocol = RewardedAd()
     case .rewardedInterstitial:
@@ -298,6 +316,14 @@ public class AdMobManager {
             willPresent: willPresent,
             didEarnReward: didEarnReward,
             didHide: didHide)
+  }
+  
+  public func params(type: AdType, placement: String) -> Params? {
+    guard let adConfig = getAd(type: type, placement: placement) as? AdConfigProtocol else {
+      print("[AdMobManager] Ads don't exist! (\(placement))")
+      return nil
+    }
+    return adConfig.params
   }
   
   public func isTestMode(type: Reuse, placement: String) -> Bool? {

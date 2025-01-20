@@ -23,4 +23,5 @@ protocol AdProtocol {
 
 extension AdProtocol {
   func config(timeout: Double) {}
+  func config(timeInterval: Double) {}
 }

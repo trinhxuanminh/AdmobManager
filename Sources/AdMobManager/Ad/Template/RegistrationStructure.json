@@ -18,7 +18,8 @@
       "status": true,
       "id": "ca-app-pub-3940256099942544/5575463023",
       "isAuto": true,
-      "description": ""
+      "description": "",
+      "timeInterval": 10.0
     }
   ],
   "rewardeds": [
@@ -55,7 +56,8 @@
       "status": true,
       "id": "ca-app-pub-3940256099942544/4411468910",
       "isAuto": true,
-      "description": ""
+      "description": "",
+      "timeInterval": 15.0
     }
   ],
   "banners": [
@@ -88,7 +90,10 @@
       "status": true,
       "id": "ca-app-pub-3940256099942544/3986624511",
       "description": "",
-      "isPreload": true
+      "isPreload": true,
+      "params": [
+        "style": "108"
+      ]
     }
   ]
 }

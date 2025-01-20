@@ -14,4 +14,6 @@ struct AppOpen: AdConfigProtocol {
   let id: String
   let isAuto: Bool?
   let description: String?
+  let timeInterval: Double?
+  let params: Params?
 }

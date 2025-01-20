@@ -15,4 +15,5 @@ struct Splash: AdConfigProtocol {
   let isAuto: Bool?
   let description: String?
   let timeout: Double
+  let params: Params?
 }

@@ -15,7 +15,7 @@ class RewardedInterstitialAd: NSObject, AdProtocol {
   private var adUnitID: String?
   private var placement: String?
   private var name: String?
-  private var presentState = false
+  private var isShowing = false
   private var isLoading = false
   private var retryAttempt = 0
   private var didLoadFail: Handler?
@@ -37,7 +37,7 @@ class RewardedInterstitialAd: NSObject, AdProtocol {
   }
   
   func isPresent() -> Bool {
-    return presentState
+    return isShowing
   }
   
   func isExist() -> Bool {
@@ -51,7 +51,7 @@ class RewardedInterstitialAd: NSObject, AdProtocol {
             didEarnReward: Handler?,
             didHide: Handler?
   ) {
-    guard !presentState else {
+    guard !isShowing else {
       print("[AdMobManager] [RewardedInterstitialAd] Display failure - ads are being displayed! (\(String(describing: adUnitID)))")
       didFail?()
       return
@@ -110,7 +110,7 @@ extension RewardedInterstitialAd: GADFullScreenContentDelegate {
       LogEventManager.shared.log(event: .adShowSuccess(placement))
     }
     willPresent?()
-    self.presentState = true
+    self.isShowing = true
   }
   
   func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
@@ -120,7 +120,7 @@ extension RewardedInterstitialAd: GADFullScreenContentDelegate {
     }
     didHide?()
     self.rewardedInterstitialAd = nil
-    self.presentState = false
+    self.isShowing = false
     load()
   }
 }

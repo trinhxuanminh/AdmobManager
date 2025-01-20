@@ -16,4 +16,6 @@ struct Interstitial: AdConfigProtocol {
   let description: String?
   let start: Int?
   let frequency: Int?
+  let timeInterval: Double?
+  let params: Params?
 }

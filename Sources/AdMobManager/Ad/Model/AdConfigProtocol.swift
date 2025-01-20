@@ -14,4 +14,5 @@ protocol AdConfigProtocol: Codable {
   var id: String { get }
   var isAuto: Bool? { get }
   var description: String? { get }
+  var params: Params? { get }
 }
