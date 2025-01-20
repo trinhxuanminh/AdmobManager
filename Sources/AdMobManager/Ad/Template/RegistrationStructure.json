@@ -14,12 +14,12 @@
   "appOpens": [
     {
       "placement": "App_Open",
-      "name": "App_Open_Test_Length_Max_Character",
+      "name": "App_Open",
       "status": true,
       "id": "ca-app-pub-3940256099942544/5575463023",
       "isAuto": true,
       "description": "",
-      "timeInterval": 10.0
+      "timeInterval": 10
     }
   ],
   "rewardeds": [
@@ -57,7 +57,7 @@
       "id": "ca-app-pub-3940256099942544/4411468910",
       "isAuto": true,
       "description": "",
-      "timeInterval": 15.0
+      "timeInterval": 15
     }
   ],
   "banners": [
@@ -91,9 +91,9 @@
       "id": "ca-app-pub-3940256099942544/3986624511",
       "description": "",
       "isPreload": true,
-      "params": [
+      "params": {
         "style": "108"
-      ]
+      }
     }
   ]
 }

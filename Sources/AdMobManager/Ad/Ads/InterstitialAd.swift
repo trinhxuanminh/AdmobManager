@@ -68,8 +68,13 @@ class InterstitialAd: NSObject, AdProtocol {
       didFail?()
       return
     }
+    guard wasLoadTimeGreaterThanInterval() else {
+      print("[AdMobManager] [AppOpenAd] Display failure - Load time is less than interval! (\(String(describing: adUnitID)))")
+      didFail?()
+      return
+    }
     LogEventManager.shared.log(event: .adShowReady(placement))
-    print("[AdMobManager] [InterstitialAd] Requested to show! (\(String(describing: adUnitID)))")
+    print("[AdMobManager] [AppOpenAd] Requested to show! (\(String(describing: adUnitID)))")
     self.placement = placement
     self.didShowFail = didFail
     self.willPresent = willPresent
@@ -131,7 +136,7 @@ extension InterstitialAd {
     if !isExist(), retryAttempt >= 2 {
       load()
     }
-    return isExist() && wasLoadTimeGreaterThanInterval()
+    return isExist()
   }
   
   private func wasLoadTimeGreaterThanInterval() -> Bool {

@@ -69,6 +69,11 @@ class AppOpenAd: NSObject, AdProtocol {
       didFail?()
       return
     }
+    guard wasLoadTimeGreaterThanInterval() else {
+      print("[AdMobManager] [AppOpenAd] Display failure - Load time is less than interval! (\(String(describing: adUnitID)))")
+      didFail?()
+      return
+    }
     LogEventManager.shared.log(event: .adShowReady(placement))
     print("[AdMobManager] [AppOpenAd] Requested to show! (\(String(describing: adUnitID)))")
     self.placement = placement
@@ -132,7 +137,7 @@ extension AppOpenAd {
     if !isExist(), retryAttempt >= 1 {
       load()
     }
-    return isExist() && wasLoadTimeGreaterThanInterval()
+    return isExist()
   }
   
   private func wasLoadTimeGreaterThanInterval() -> Bool {
